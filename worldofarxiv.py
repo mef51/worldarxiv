@@ -31,8 +31,10 @@ def scrapeArxivData(archive='astro-ph', option='new')
 	Scrape arxiv.
 
 	`archive` : string, one of astro-ph, cond-mat, cs, gr-qc, etc..
+	`option` : string, one of 'new' or 'current'
 	"""
 	res = requests.get("https://arxiv.org/list/" + archive + "/" + option)
+	print(res.status_code)
 	page = parse(res.content, 'html.parser')
 	entries = page.find_all('div', {'class': 'meta'})
 	ids = page.find_all('span', {'class': 'list-identifier'})
