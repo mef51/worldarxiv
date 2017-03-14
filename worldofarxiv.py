@@ -3,12 +3,9 @@
 """
 Pull data from arxiv and prepare it to be displayed on a map
 """
-import requests
-from lxml import html
 
-rooturl = 'https://arxiv.org/list/'
 options = ["new", "current"] # current needs more work
-arxivlists = ["astro-ph",
+archives = ["astro-ph",
 	"cond-mat",
 	"cs",
 	"gr-qc",
@@ -27,10 +24,31 @@ arxivlists = ["astro-ph",
 	"quant-ph",
 	"stat"]
 
-astrophlist = arxivlists[0]
-url = rooturl + astrophlist + '/' + options[0]
-print(url)
-response = requests.get(url)
-data = html.fromstring(response.content)
+def scrapeArxivData(archive='astro-ph', option='new')
+	import requests
+	from bs4 import BeautifulSoup as parse
+	"""
+	Scrape arxiv.
 
-print(data)
+	`archive` : string, one of astro-ph, cond-mat, cs, gr-qc, etc..
+	"""
+	res = requests.get("https://arxiv.org/list/" + archive + "/" + option)
+	page = parse(res.content, 'html.parser')
+	entries = page.find_all('div', {'class': 'meta'})
+	ids = page.find_all('span', {'class': 'list-identifier'})
+
+	arxivids = []
+	titles = []
+	authorsbypaper = []
+
+	for arxivid in ids:
+		arxivids.append(arxivid.a.text[6:]) # trim the leading 'arxiv:'
+
+	for entry in entries:
+		title = entry.find('div', {'class': 'list-title'})
+		title.span.extract()
+		titles.append(title.text[2:-1]) # trim the leading '\n ' and trailing '\n'
+
+		authors = entry.find('div', {'class': 'list-authors'})
+		authors.span.extract()
+		authorsbypaper.append([a.text for a in authors.findChildren()])
