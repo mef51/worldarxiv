@@ -24,7 +24,7 @@ archives = ["astro-ph",
 	"quant-ph",
 	"stat"]
 
-def scrapeArxivData(archive='astro-ph', option='new')
+def scrapeArxivData(archive='astro-ph', option='new'):
 	import requests
 	from bs4 import BeautifulSoup as parse
 	"""
@@ -54,3 +54,8 @@ def scrapeArxivData(archive='astro-ph', option='new')
 		authors = entry.find('div', {'class': 'list-authors'})
 		authors.span.extract()
 		authorsbypaper.append([a.text for a in authors.findChildren()])
+
+	return {"ids": arxivids, "titles": titles, "authors": authorsbypaper}
+
+import numpy as np
+print(np.array(scrapeArxivData()['ids']))
