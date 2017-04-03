@@ -1,3 +1,5 @@
+feb. 2017:
+==========
 http://www.unm.edu/~jagross/2016/09/06/predicting_arxiv_submissions.html
 http://nbviewer.jupyter.org/github/jarthurgross/arxiv-submission-modeling/blob/master/arxiv-modeling.ipynb
 http://paperscape.org/
@@ -9,10 +11,8 @@ https://orcid.org/0000-0002-7970-7855
 https://arxiv.org/a/0000-0002-7970-7855.html
 https://arxiv.org/help/author_identifiers
 
-
 google group ask:
 https://groups.google.com/forum/#!topic/arxiv-api/MSlbzNMlbNM
-
 
 
 Hi everyone,
@@ -32,3 +32,18 @@ Will the folks developing the arxiv API expose the affiliation fields we are req
 
 Best,
 Mohammed
+=============================
+
+april 1 2017:
+
+ADS has this author service called astroperson.lis. example:
+http://ads.harvard.edu/cgi-bin/search_persons.sh?cases=ignore&words=substring&fuzzy=exact&name=Elias,%20N
+
+actually seems to have decent coverage. this could be enough to get started
+
+==========================
+april 3 2017:
+
+ADS is not exactly fullproof. it worked once out of the four times.
+What if instead I just google the author's full name + the field they are publishing in and then
+always take the first link
