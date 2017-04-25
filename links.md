@@ -47,3 +47,20 @@ april 3 2017:
 ADS is not exactly fullproof. it worked once out of the four times.
 What if instead I just google the author's full name + the field they are publishing in and then
 always take the first link
+
+==========================
+april 25 2017:
+
+ADSBeta might be the answer. Their API exposes affiliations
+https://github.com/adsabs/adsabs-dev-api#access
+https://github.com/adsabs/adsabs-dev-api/blob/master/search.md#query-parameters
+
+For common names (like G. Yang), filtering on field (astronomy) could help.
+Also, ADS isnt perfect either.
+
+Need a robust way to get affiliations. Check for affiliations like this:
+	1. Check affiliaction on arxiv
+	2. Check ADS Beta
+	3. Check old ADS?
+	4. Check ORCID (in an ideal world this would be first but ORCID has terrible coverage)
+	5. Google "author name astronomy" and scrape the first or so links lol

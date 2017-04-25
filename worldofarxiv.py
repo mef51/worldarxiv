@@ -2,7 +2,10 @@
 
 """
 Pull data from arxiv and prepare it to be displayed on a map
+Use ADS to get affiliation information.
 """
+import ads
+ads.config.token = open('ads.key').readline().rstrip()
 
 options = ["new", "current"] # current needs more work
 archives = ["astro-ph",
@@ -57,5 +60,25 @@ def scrapeArxivData(archive='astro-ph', option='new'):
 
 	return {"ids": arxivids, "titles": titles, "authors": authorsbypaper}
 
+def getAffiliation(arxivAuthor):
+	"""
+	Takes an author and looks them up on ADS to get their affiliation
+	`arxivAuthor` is the string of the author's name as arxiv formats it
+
+	1. query ADS. filter by field first.
+	2. if query gives 0 results, query without filter
+		(we filter because some names will return thousands of results)
+	3. take the affiliation from the most recent publication and work down the list like that if the data is missing
+
+	"""
+
+	results = ads.SearchQuery(q='author:"lancaster, lachlan"',
+		fl=['aff', 'author', 'year', 'title'],
+		sort="year")
+
+	affiliation = results[0].aff[results[0].author.index('Lancaster, Lachlan')]
+	return affiliation
+
+
 import numpy as np
-print(np.array(scrapeArxivData()['ids']))
+print(np.array(scrapeArxivData()['authors']))
