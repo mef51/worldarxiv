@@ -28,14 +28,21 @@ archives = ["astro-ph",
 	"stat"]
 
 def scrapeArxivData(archive='astro-ph', option='new'):
-	import requests
-	from bs4 import BeautifulSoup as parse
 	"""
 	Scrape arxiv.
 
-	`archive` : string, one of astro-ph, cond-mat, cs, gr-qc, etc..
-	`option` : string, one of 'new' or 'current'
+	Parameters
+	----------
+	archive : string, one of astro-ph, cond-mat, cs, gr-qc, etc..
+	option  : string, one of 'new' or 'current'
+
+	Returns
+	-------
+	dictionary: {'ids', 'titles', 'authors'}
 	"""
+
+	import requests
+	from bs4 import BeautifulSoup as parse
 	res = requests.get("https://arxiv.org/list/" + archive + "/" + option)
 	print(res.status_code)
 	page = parse(res.content, 'html.parser')
@@ -60,11 +67,12 @@ def scrapeArxivData(archive='astro-ph', option='new'):
 
 	return {"ids": arxivids, "titles": titles, "authors": authorsbypaper}
 
-def getAffiliation(arxivAuthor):
+def getAuthorAffiliation(arxivAuthor, arxivId):
 	"""
 	Takes an author and looks them up on ADS to get their affiliation
 	`arxivAuthor` is the string of the author's name as arxiv formats it
 
+	0. Check that arxiv doesn't have the affiliation first
 	1. query ADS. filter by field first.
 	2. if query gives 0 results, query without filter
 		(we filter because some names will return thousands of results)
@@ -72,13 +80,45 @@ def getAffiliation(arxivAuthor):
 
 	"""
 
-	results = ads.SearchQuery(q='author:"lancaster, lachlan"',
+	# Need go from arxiv's format to ADS's format.
+	# For example 'J. M. Fedrow' needs to become "Fedrow, J M"
+	author = list(map(lambda s: s.replace('.', ''), arxivAuthor.split(' ')))
+	adsauthor = ','.join([author[-1]] + [' '.join(author[:len(author)-1])]) # fuck yeah lmao
+
+	# ads takes author:"last, first middle"
+
+	results = ads.SearchQuery(
+		q='author:"lancaster, lachlan"',
 		fl=['aff', 'author', 'year', 'title'],
-		sort="year")
+		sort="year"
+	)
 
 	affiliation = results[0].aff[results[0].author.index('Lancaster, Lachlan')]
 	return affiliation
 
+def getMapCoords(affiliation):
+	pass
 
-import numpy as np
-print(np.array(scrapeArxivData()['authors']))
+
+def resolveNewArticles(papers):
+	"""
+	Find affiliations and coordinates of papers.
+	A paper's coordinates is the coordinates of the first author's institution.
+	If we can't find the first author's institution, use the second author's, then third, etc.
+	"""
+	papers['affiliation'] = []
+	papers['coords'] = []
+	for i, paperid in enumerate(papers['ids']):
+		for author in papers['authors'][i]:
+			affiliation = getAuthorAffiliation(author, paperid)
+			if affiliation is not '':
+				print(affiliation)
+				break
+		papers['affiliation'].append(affiliation)
+		coords = getMapCoords(affiliation)
+	return papers
+
+
+if __name__ == "__main__":
+	papers = scrapeArxivData()
+	papers = resolveNewArticles(papers)
