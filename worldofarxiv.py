@@ -80,20 +80,20 @@ def getAuthorAffiliation(arxivAuthor, arxivId):
 
 	"""
 
-	# Need go from arxiv's format to ADS's format.
+	# ADS takes author:"last, first middle"
+	# Need to go from arxiv's format to ADS's format.
 	# For example 'J. M. Fedrow' needs to become "Fedrow, J M"
 	author = list(map(lambda s: s.replace('.', ''), arxivAuthor.split(' ')))
-	adsauthor = ','.join([author[-1]] + [' '.join(author[:len(author)-1])]) # fuck yeah lmao
-
-	# ads takes author:"last, first middle"
+	adsauthor = ', '.join([author[-1]] + [' '.join(author[:len(author)-1])]) # fuck yeah lmao
 
 	results = ads.SearchQuery(
-		q='author:"lancaster, lachlan"',
+		q='author:"{}"'.format(adsauthor),
 		fl=['aff', 'author', 'year', 'title'],
 		sort="year"
 	)
+	results = list(results)
 
-	affiliation = results[0].aff[results[0].author.index('Lancaster, Lachlan')]
+	affiliation = results[0].aff[results[0].author.index(adsauthor)]
 	return affiliation
 
 def getMapCoords(affiliation):
