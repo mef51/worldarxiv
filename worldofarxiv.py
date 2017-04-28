@@ -5,6 +5,8 @@ Pull data from arxiv and prepare it to be displayed on a map
 Use ADS to get affiliation information.
 """
 import ads
+import requests
+from tqdm import tqdm
 ads.config.token = open('ads.key').readline().rstrip()
 
 options = ["new", "current"] # current needs more work
@@ -27,6 +29,8 @@ archives = ["astro-ph",
 	"quant-ph",
 	"stat"]
 
+AFFNOTFOUND = 'Affiliation Not Found.'
+
 def scrapeArxivData(archive='astro-ph', option='new'):
 	"""
 	Scrape arxiv.
@@ -41,7 +45,6 @@ def scrapeArxivData(archive='astro-ph', option='new'):
 	dictionary: {'ids', 'titles', 'authors'}
 	"""
 
-	import requests
 	from bs4 import BeautifulSoup as parse
 	res = requests.get("https://arxiv.org/list/" + archive + "/" + option)
 	print(res.status_code)
@@ -67,6 +70,30 @@ def scrapeArxivData(archive='astro-ph', option='new'):
 
 	return {"ids": arxivids, "titles": titles, "authors": authorsbypaper}
 
+	# I'd prefer this data format
+	# papers = []
+	# 	papers.append({
+	# 		'id':,
+	# 		'title':,
+	# 		'authors':,
+	# 	})
+
+def queryArxiv(arxivId):
+	url = "http://export.arxiv.org/api/query?id_list={}".format(arxivId)
+
+	return AFFNOTFOUND
+
+def getADSQueriesLeft():
+	"""
+	Stupidly get the number of queries left by making a query.
+	The way to get it without making a query doesn't seem to work.
+	https://ads.readthedocs.io/en/latest/#rate-limit-usage
+	"""
+	q = ads.SearchQuery(q='star')
+	q.next()
+	return q.response.get_ratelimits()['remaining']
+
+
 def getAuthorAffiliation(arxivAuthor, arxivId):
 	"""
 	Takes an author and looks them up on ADS to get their affiliation
@@ -86,6 +113,12 @@ def getAuthorAffiliation(arxivAuthor, arxivId):
 	author = list(map(lambda s: s.replace('.', ''), arxivAuthor.split(' ')))
 	adsauthor = ', '.join([author[-1]] + [' '.join(author[:len(author)-1])]) # fuck yeah lmao
 
+	# check with arxiv before wasting an api call to ADS (we get 5000 a day)
+	affiliation = queryArxiv(arxivId)
+	if affiliation is not AFFNOTFOUND:
+		return affiliation
+
+	# check with ADS
 	results = ads.SearchQuery(
 		q='author:"{}"'.format(adsauthor),
 		fl=['aff', 'author', 'year', 'title'],
@@ -93,12 +126,18 @@ def getAuthorAffiliation(arxivAuthor, arxivId):
 	)
 	results = list(results)
 
-	affiliation = results[0].aff[results[0].author.index(adsauthor)]
+	for result in results:
+		try:
+			affiliation = result.aff[result.author.index(adsauthor)]
+		except (ValueError, IndexError) as e:
+			affiliation = AFFNOTFOUND
+		if affiliation is not AFFNOTFOUND:
+			break
+
 	return affiliation
 
 def getMapCoords(affiliation):
 	pass
-
 
 def resolveNewArticles(papers):
 	"""
@@ -106,19 +145,23 @@ def resolveNewArticles(papers):
 	A paper's coordinates is the coordinates of the first author's institution.
 	If we can't find the first author's institution, use the second author's, then third, etc.
 	"""
-	papers['affiliation'] = []
+	papers['affiliations'] = []
 	papers['coords'] = []
-	for i, paperid in enumerate(papers['ids']):
+	for i, paperid in enumerate(tqdm(papers['ids'])):
 		for author in papers['authors'][i]:
 			affiliation = getAuthorAffiliation(author, paperid)
-			if affiliation is not '':
-				print(affiliation)
+			if affiliation is not AFFNOTFOUND:
 				break
-		papers['affiliation'].append(affiliation)
+		papers['affiliations'].append(affiliation)
 		coords = getMapCoords(affiliation)
+		papers['coords'].append(coords)
 	return papers
 
 
 if __name__ == "__main__":
 	papers = scrapeArxivData()
 	papers = resolveNewArticles(papers)
+
+	# damage check
+	for i, paperid in enumerate(papers['ids']):
+		print(paperid, papers['affiliations'][i])
