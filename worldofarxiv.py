@@ -111,7 +111,7 @@ def getAuthorAffiliation(arxivAuthor, arxivId):
 	# Need to go from arxiv's format to ADS's format.
 	# For example 'J. M. Fedrow' needs to become "Fedrow, J M"
 	author = list(map(lambda s: s.replace('.', ''), arxivAuthor.split(' ')))
-	adsauthor = ', '.join([author[-1]] + [' '.join(author[:len(author)-1])]) # fuck yeah lmao
+	adsauthor = ', '.join([author[-1]] + [' '.join(author[:len(author)-1])])
 
 	# check with arxiv before wasting an api call to ADS (we get 5000 a day)
 	affiliation = queryArxiv(arxivId)
@@ -121,16 +121,20 @@ def getAuthorAffiliation(arxivAuthor, arxivId):
 	# check with ADS
 	results = ads.SearchQuery(
 		q='author:"{}"'.format(adsauthor),
-		fl=['aff', 'author', 'year', 'title'],
-		sort="year"
+		fl=['aff', 'author', 'title', 'pubdate'],
+		sort='pubdate'
 	)
 	results = list(results)
 
 	for result in results:
 		try:
-			affiliation = result.aff[result.author.index(adsauthor)]
+			print(result.title)
+			lastname = author[-1]
+			lastnames = [list(map(lambda s: s.replace('.', '').replace(',',''), a.split(' ')))[0] for a in result.author]
+			affiliation = result.aff[lastnames.index(lastname)]
 		except (ValueError, IndexError) as e:
 			affiliation = AFFNOTFOUND
+
 		if affiliation is not AFFNOTFOUND:
 			break
 
