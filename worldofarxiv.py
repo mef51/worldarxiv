@@ -128,10 +128,11 @@ def getAuthorAffiliation(arxivAuthor, arxivId):
 
 	for result in results:
 		try:
-			print(result.title)
 			lastname = author[-1]
 			lastnames = [list(map(lambda s: s.replace('.', '').replace(',',''), a.split(' ')))[0] for a in result.author]
 			affiliation = result.aff[lastnames.index(lastname)]
+			if affiliation is '-': # ADS will return '-' if it has no affiliation for a paper
+				affiliation = AFFNOTFOUND
 		except (ValueError, IndexError) as e:
 			affiliation = AFFNOTFOUND
 
