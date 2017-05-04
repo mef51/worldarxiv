@@ -64,3 +64,14 @@ Need a robust way to get affiliations. Check for affiliations like this:
 	3. Check old ADS?
 	4. Check ORCID (in an ideal world this would be first but ORCID has terrible coverage)
 	5. Google "author name astronomy" and scrape the first or so links lol
+
+==============
+may 4 2017:
+
+I'd like for people to be able to add filters on the world map that persist over sessions.
+ex:
+	* filtering on author or institution makes a paper's symbol change to a star, and brighter color
+	* filtering on a keyword adds a pulsing animation to the paper's symbol
+	* paper's that don't match any filters can just be a slowly rotating diamond or something
+
+also I bought worldarxiv.org today, to mirror arxiv.org. 17 bucks
