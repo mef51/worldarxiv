@@ -9,8 +9,8 @@ import requests
 from tqdm import tqdm
 ads.config.token = open('ads.key').readline().rstrip()
 
-options = ["new", "current"] # current needs more work
-archives = ["astro-ph",
+options = ["new", "current"] # 'current' needs more work
+archives = ["astro-ph", # getting author affiliations only works for astro-ph
 	"cond-mat",
 	"cs",
 	"gr-qc",
