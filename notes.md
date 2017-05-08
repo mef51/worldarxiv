@@ -81,3 +81,14 @@ may 8 2017:
 
 * when you hover over an item the title should show up
 * gonna rewrite how the papers are stored
+* geocoding is what getting coordinates from addresses is called apparently
+	* http://stackoverflow.com/questions/10008949/is-it-possible-to-get-an-address-from-coordinates-using-google-maps
+	* https://en.wikipedia.org/wiki/Geocoding
+	* http://stackoverflow.com/questions/3652951/google-maps-api-get-coordinates-of-address
+	* 2500 free requests a day from Google. i'll be making ~100 a day. unless i add other mailing lists.
+		* astro: ~50-100 new papers a day
+		* physics: ~100 new papers/day
+		* math: ~200 papers/day
+		* cs: ~150/day
+		* cond-mat: ~150/day
+		* worst case: 600/day
