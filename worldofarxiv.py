@@ -31,7 +31,7 @@ archives = ["astro-ph", # getting author affiliations only works for astro-ph
 
 AFFNOTFOUND = 'Affiliation Not Found.'
 
-def scrapeArxivData(archive='astro-ph', option='new'):
+def scrapeArxivData(archive='astro-ph', option='new', limit=200):
 	"""
 	Scrape arxiv.
 
@@ -39,6 +39,7 @@ def scrapeArxivData(archive='astro-ph', option='new'):
 	----------
 	archive : string, one of astro-ph, cond-mat, cs, gr-qc, etc..
 	option  : string, one of 'new' or 'current'
+	limit   : int, limit the number of papers we get from arxiv
 
 	Returns
 	-------
@@ -47,7 +48,7 @@ def scrapeArxivData(archive='astro-ph', option='new'):
 
 	from bs4 import BeautifulSoup as parse
 	res = requests.get("https://arxiv.org/list/" + archive + "/" + option)
-	print(res.status_code)
+	print("arXiv responded with:", res.status_code)
 	page = parse(res.content, 'html.parser')
 	entries = page.find_all('div', {'class': 'meta'})
 	ids = page.find_all('span', {'class': 'list-identifier'})
@@ -56,27 +57,24 @@ def scrapeArxivData(archive='astro-ph', option='new'):
 	titles = []
 	authorsbypaper = []
 
-	for arxivid in ids:
-		arxivids.append(arxivid.a.text[6:]) # trim the leading 'arxiv:'
+	papers = []
 
-	for entry in entries:
+	for i, arxivid in enumerate(ids):
+		entry = entries[i]
 		title = entry.find('div', {'class': 'list-title'})
 		title.span.extract()
-		titles.append(title.text[2:-1]) # trim the leading '\n ' and trailing '\n'
 
 		authors = entry.find('div', {'class': 'list-authors'})
 		authors.span.extract()
-		authorsbypaper.append([a.text for a in authors.findChildren()])
 
-	return {"ids": arxivids, "titles": titles, "authors": authorsbypaper}
+		papers.append({
+			'id': arxivid.a.text[6:],  # trim the leading 'arxiv:'
+			'title': title.text[2:-1], # trim the leading '\n ' and trailing '\n'
+			'authors': [a.text for a in authors.findChildren()]
+		})
 
-	# I'd prefer this data format
-	# papers = []
-	# 	papers.append({
-	# 		'id':,
-	# 		'title':,
-	# 		'authors':,
-	# 	})
+	return papers[:limit]
+
 
 def queryArxiv(arxivId):
 	url = "http://export.arxiv.org/api/query?id_list={}".format(arxivId)
@@ -150,23 +148,19 @@ def resolveNewArticles(papers):
 	A paper's coordinates is the coordinates of the first author's institution.
 	If we can't find the first author's institution, use the second author's, then third, etc.
 	"""
-	papers['affiliations'] = []
-	papers['coords'] = []
-	for i, paperid in enumerate(tqdm(papers['ids'])):
-		for author in papers['authors'][i]:
-			affiliation = getAuthorAffiliation(author, paperid)
+	for paper in tqdm(papers):
+		for author in paper['authors']:
+			affiliation = getAuthorAffiliation(author, paper['id'])
 			if affiliation is not AFFNOTFOUND:
 				break
-		papers['affiliations'].append(affiliation)
+		paper['affiliation'] = affiliation
 		coords = getMapCoords(affiliation)
-		papers['coords'].append(coords)
-	return papers
+		paper['coords'] = coords
 
+	return papers
 
 if __name__ == "__main__":
 	papers = scrapeArxivData()
 	papers = resolveNewArticles(papers)
-
-	# damage check
-	for i, paperid in enumerate(papers['ids']):
-		print(paperid, papers['affiliations'][i])
+	for paper in papers:
+		print(paper['affiliation'])

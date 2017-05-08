@@ -75,3 +75,9 @@ ex:
 	* paper's that don't match any filters can just be a slowly rotating diamond or something
 
 also I bought worldarxiv.org today, to mirror arxiv.org. 17 bucks
+
+======
+may 8 2017:
+
+* when you hover over an item the title should show up
+* gonna rewrite how the papers are stored
