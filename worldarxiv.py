@@ -3,11 +3,14 @@
 """
 Pull data from arxiv and prepare it to be displayed on a map
 Use ADS to get affiliation information.
+Use Google Geocode to get coordinates
 """
-import ads
+import ads, googlemaps
 import requests
 from tqdm import tqdm
+
 ads.config.token = open('ads.key').readline().rstrip()
+gmaps = googlemaps.Client(key=open('gmaps.key').readline().rstrip())
 
 options = ["new", "current"] # 'current' needs more work
 archives = ["astro-ph", # getting author affiliations only works for astro-ph
@@ -29,7 +32,8 @@ archives = ["astro-ph", # getting author affiliations only works for astro-ph
 	"quant-ph",
 	"stat"]
 
-AFFNOTFOUND = 'Affiliation Not Found.'
+AFFNOTFOUND    = 'Affiliation Not Found.'
+COORDSNOTFOUND = 'Coordinates Not Found.'
 
 def scrapeArxivData(archive='astro-ph', option='new', limit=200):
 	"""
@@ -97,7 +101,7 @@ def getAuthorAffiliation(arxivAuthor, arxivId):
 	Takes an author and looks them up on ADS to get their affiliation
 	`arxivAuthor` is the string of the author's name as arxiv formats it
 
-	0. Check that arxiv doesn't have the affiliation first
+	0. TODO: Check that arxiv doesn't have the affiliation first
 	1. query ADS. filter by field first.
 	2. if query gives 0 results, query without filter
 		(we filter because some names will return thousands of results)
@@ -140,7 +144,14 @@ def getAuthorAffiliation(arxivAuthor, arxivId):
 	return affiliation
 
 def getMapCoords(affiliation):
-	pass
+	"""
+	Takes an affiliation and shoves it into google's geocode api to get lat/long
+	"""
+	coords = gmaps.geocode(affiliation)
+	if len(coords) is not 0:
+		coords = coords[0]['geometry']['location']
+		return coords
+	return COORDSNOTFOUND
 
 def resolveNewArticles(papers):
 	"""
@@ -160,7 +171,7 @@ def resolveNewArticles(papers):
 	return papers
 
 if __name__ == "__main__":
-	papers = scrapeArxivData()
+	papers = scrapeArxivData(limit=10)
 	papers = resolveNewArticles(papers)
 	for paper in papers:
-		print(paper['affiliation'])
+		print(paper['coords'])
