@@ -92,3 +92,16 @@ may 8 2017:
 		* cs: ~150/day
 		* cond-mat: ~150/day
 		* worst case: 600/day
+
+======
+may 10 2017:
+
+* the `datamaps` (https://github.com/markmarkoh/datamaps) looks like a good map plugin to use
+
+======
+may 23 2017:
+
+* data is stored in the data/ folder with format yyyymmdd.json
+* this article is interesting
+	* http://www.nature.com/news/data-visualization-science-on-the-map-1.17024#mapping
+* also the word for 'sexy map backdrop' is 'basemap' apparently

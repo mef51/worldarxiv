@@ -6,7 +6,7 @@ Use ADS to get affiliation information.
 Use Google Geocode to get coordinates
 """
 import ads, googlemaps
-import requests
+import requests, json, os, time
 from tqdm import tqdm
 
 ads.config.token = open('ads.key').readline().rstrip()
@@ -171,7 +171,13 @@ def resolveNewArticles(papers):
 	return papers
 
 if __name__ == "__main__":
-	papers = scrapeArxivData(limit=10)
+	papers = scrapeArxivData()
 	papers = resolveNewArticles(papers)
-	for paper in papers:
-		print(paper['coords'])
+
+	# save today's data
+	datadir = 'data'
+	if not os.path.exists(datadir):
+		os.mkdir(datadir)
+	datafile = open(os.path.join(datadir, time.strftime('%Y%m%d') + '.json'), 'w')
+	json.dump(papers, datafile)
+	datafile.close()
