@@ -171,6 +171,7 @@ def resolveNewArticles(papers):
 	return papers
 
 if __name__ == "__main__":
+	print("Getting and saving data to", time.strftime('%Y%m%d') + '.json')
 	papers = scrapeArxivData()
 	papers = resolveNewArticles(papers)
 
