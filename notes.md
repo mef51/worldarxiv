@@ -105,3 +105,6 @@ may 23 2017:
 * this article is interesting
 	* http://www.nature.com/news/data-visualization-science-on-the-map-1.17024#mapping
 * also the word for 'sexy map backdrop' is 'basemap' apparently
+	* you can use TileMill (maps + css as far as I can tell) to make a good looking basemap then use that in other tools
+* Leaflet js http://leafletjs.com/, mobile friendly interactive maps.
+* I think it's come down to leaflet and datamaps. CartoDB looks nice but its proprietary
