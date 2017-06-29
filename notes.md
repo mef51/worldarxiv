@@ -108,3 +108,10 @@ may 23 2017:
 	* you can use TileMill (maps + css as far as I can tell) to make a good looking basemap then use that in other tools
 * Leaflet js http://leafletjs.com/, mobile friendly interactive maps.
 * I think it's come down to leaflet and datamaps. CartoDB looks nice but its proprietary
+
+======
+june 29 2017:
+* Thunderforest has some styled maps https://www.thunderforest.com/
+* holy cow so many maps http://leaflet-extras.github.io/leaflet-providers/preview/
+* they have a zoomable night map:
+	* http://leaflet-extras.github.io/leaflet-providers/preview/#filter=NASAGIBS.ViirsEarthAtNight2012
