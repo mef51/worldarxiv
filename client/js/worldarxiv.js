@@ -16,6 +16,10 @@
 		return '<' + tag + '>' + content + '</' + tag + '>';
 	}
 
+	function getArxivUrl(id){
+		return 'https://arxiv.org/abs/' + id
+	}
+
 	var datadir = 'data';
 	var datafile = getDate() + '.json';
 	request(datadir + '/' + datafile).then(function(response){
@@ -24,38 +28,45 @@
 	});
 
 	function displayPapers(papers){
-		var worldmap = L.map('worldmap').setView([30, -20], 3);
+		var worldmap = L.map('worldmap').setView([30, 10], 3);
 		L.tileLayer('http://{s}.tile.osm.org/{z}/{x}/{y}.png', {
-			attribution: '&copy; <a href="http://osm.org/copyright">OpenStreetMap</a> contributors'
+			attribution: '&copy; <a href="http://osm.org/copyright">OpenStreetMap</a>'
 		}).addTo(worldmap);
 
 		// plot the unresolved papers in a square like pattern in the middle of the atlantic ocean
 		var unresolvedCount = 0;
-		var unresolvedPos = [10.1, -41.2];
+		var unresolvedPos = [35, -50];
 		var posIncrement = 2;
-		var numRow = 5;
+		var numRow = 10;
 
 		for(var paper of papers){
 			var id          = wrap(paper.id, 'b');
 			var title       = wrap(paper.title, 'i');
 			var affiliation = paper.affiliation;
 			var authors     = paper.authors;
+			var url         = getArxivUrl(paper.id);
+			id = '<a href="' + url + '" target=0>' + id + '</a>'
 
-			var popuptext = [id, title, affiliation].join('<br>');
+			var popuptext = [id, title, affiliation].join('<br />');
+			var lat = lng = 0;
 
 			if(typeof(paper.coords) != 'string'){
-				var lat = paper.coords.lat;
-				var lng = paper.coords.lng;
-
-				L.marker([lat, lng]).addTo(worldmap).bindPopup(popuptext);
+				lat = paper.coords.lat;
+				lng = paper.coords.lng;
 			} else {
+				var rowbumper = Math.floor((unresolvedCount%(numRow+unresolvedCount))/numRow);
+				lat = unresolvedPos[0] - posIncrement*rowbumper;
+				lng = unresolvedPos[1] + posIncrement*(unresolvedCount%numRow);
 				unresolvedCount++;
-				console.log(  Math.floor(((unresolvedCount%numRow)+unresolvedCount) / numRow)   );
-				var lat = unresolvedPos[0] + posIncrement * Math.floor(((unresolvedCount%numRow)+unresolvedCount) / numRow);
-				var lng = unresolvedPos[1] + posIncrement*(unresolvedCount%numRow);
-
-				L.marker([lat, lng]).addTo(worldmap).bindPopup(popuptext);
 			}
+
+			var marker = L.marker([lat, lng]).addTo(worldmap).bindPopup(popuptext);
+			marker.on('mouseover', function (e) {
+				this.openPopup();
+			});
+			marker.on('mouseout', function (e) {
+				this.closePopup();
+			});
 		}
 		console.log(unresolvedCount + '', 'unresolved papers out of', papers.length + '')
 	}

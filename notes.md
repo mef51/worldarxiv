@@ -115,3 +115,7 @@ june 29 2017:
 * holy cow so many maps http://leaflet-extras.github.io/leaflet-providers/preview/
 * they have a zoomable night map:
 	* http://leaflet-extras.github.io/leaflet-providers/preview/#filter=NASAGIBS.ViirsEarthAtNight2012
+* I might need to add katex or something for latex in paper titles
+* popup on mouse hover
+	* https://gis.stackexchange.com/questions/31951/how-to-show-a-popup-on-mouse-over-not-on-click
+	* this is the exact behaviour i want http://jsfiddle.net/sowelie/3JbNY/
