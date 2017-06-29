@@ -176,7 +176,7 @@ if __name__ == "__main__":
 	papers = resolveNewArticles(papers)
 
 	# save today's data
-	datadir = 'data'
+	datadir = os.path.join('client', 'data')
 	if not os.path.exists(datadir):
 		os.mkdir(datadir)
 	datafile = open(os.path.join(datadir, time.strftime('%Y%m%d') + '.json'), 'w')
