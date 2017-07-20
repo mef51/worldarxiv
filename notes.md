@@ -119,3 +119,13 @@ june 29 2017:
 * popup on mouse hover
 	* https://gis.stackexchange.com/questions/31951/how-to-show-a-popup-on-mouse-over-not-on-click
 	* this is the exact behaviour i want http://jsfiddle.net/sowelie/3JbNY/
+
+========
+july 4 2017
+
+* there are a lot of plugins that do things I wanna do: http://leafletjs.com/plugins.html
+	* For example "Search & Popups" for the filtering I want to do and "Overlay animations" for the
+	animating of markers I want to do
+* ADS sometimes returns several affiliations separated by semicolons:
+	* for example: "Astrophysics Group, Blackett Laboratory, Imperial College London, London, SW7 2AZ, UK; Department of Mathematics, Imperial College London, London, SW7 2AZ, UK; Department of Astronomy, Stockholm University, Albanova, 10691, Stockholm, Sweden"
+	* this causes geocoding to fail. Fix should be to just split on semicolons

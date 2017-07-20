@@ -7,6 +7,7 @@ Use Google Geocode to get coordinates
 """
 import ads, googlemaps
 import requests, json, os, time
+from bs4 import BeautifulSoup as parse
 from tqdm import tqdm
 
 ads.config.token = open('ads.key').readline().rstrip()
@@ -50,7 +51,6 @@ def scrapeArxivData(archive='astro-ph', option='new', limit=200):
 	dictionary: {'ids', 'titles', 'authors'}
 	"""
 
-	from bs4 import BeautifulSoup as parse
 	res = requests.get("https://arxiv.org/list/" + archive + "/" + option)
 	print("arXiv responded with:", res.status_code)
 	page = parse(res.content, 'html.parser')
@@ -81,44 +81,42 @@ def scrapeArxivData(archive='astro-ph', option='new', limit=200):
 
 
 def queryArxiv(arxivId):
+	"""
+	Try to resolve the affiliation of an individual paper by checking arXiv
+	TODO: arxiv lets you query a bunch of ids at once.. That would be better than querying one by one
+	"""
 	url = "http://export.arxiv.org/api/query?id_list={}".format(arxivId)
+	res = requests.get(url)
+	if res.status_code > 299:
+		print("arxiv API says", res.status_code)
+		return AFFNOTFOUND
+	data = parse(res.content, 'xml').find('entry')
 
-	return AFFNOTFOUND
+	title = data.find('title').text.replace('\n', '').rstrip()
+	authors = list(map(lambda s: s.find('name').text, data.find_all('author')))
+	if data.find('author').find('affiliation') is not None:
+		affiliation = list(map(lambda s: s.find('affiliation').text, data.find_all('author')))[0]
+	else:
+		affiliation = AFFNOTFOUND
 
-def getADSQueriesLeft():
-	"""
-	Stupidly get the number of queries left by making a query.
-	The way to get it without making a query doesn't seem to work.
-	https://ads.readthedocs.io/en/latest/#rate-limit-usage
-	"""
-	q = ads.SearchQuery(q='star')
-	q.next()
-	return q.response.get_ratelimits()['remaining']
+	return affiliation
 
-
-def getAuthorAffiliation(arxivAuthor, arxivId):
+def getAuthorAffiliation(arxivAuthor):
 	"""
 	Takes an author and looks them up on ADS to get their affiliation
 	`arxivAuthor` is the string of the author's name as arxiv formats it
 
-	0. TODO: Check that arxiv doesn't have the affiliation first
 	1. query ADS. filter by field first.
 	2. if query gives 0 results, query without filter
 		(we filter because some names will return thousands of results)
 	3. take the affiliation from the most recent publication and work down the list like that if the data is missing
 
 	"""
-
 	# ADS takes author:"last, first middle"
 	# Need to go from arxiv's format to ADS's format.
 	# For example 'J. M. Fedrow' needs to become "Fedrow, J M"
 	author = list(map(lambda s: s.replace('.', ''), arxivAuthor.split(' ')))
 	adsauthor = ', '.join([author[-1]] + [' '.join(author[:len(author)-1])])
-
-	# check with arxiv before wasting an api call to ADS (we get 5000 a day)
-	affiliation = queryArxiv(arxivId)
-	if affiliation is not AFFNOTFOUND:
-		return affiliation
 
 	# check with ADS
 	results = ads.SearchQuery(
@@ -147,33 +145,65 @@ def getMapCoords(affiliation):
 	"""
 	Takes an affiliation and shoves it into google's geocode api to get lat/long
 	"""
+	if affiliation is AFFNOTFOUND:
+		return COORDSNOTFOUND
+
 	coords = gmaps.geocode(affiliation)
 	if len(coords) is not 0:
 		coords = coords[0]['geometry']['location']
 		return coords
 	return COORDSNOTFOUND
 
-def resolveNewArticles(papers):
+def resolvePapers(papers, arxivOnly=False):
 	"""
 	Find affiliations and coordinates of papers.
 	A paper's coordinates is the coordinates of the first author's institution.
 	If we can't find the first author's institution, use the second author's, then third, etc.
+
+	arxivOnly: set to true to just look up affiliation on arxiv. No ADS.
 	"""
 	for paper in tqdm(papers):
-		for author in paper['authors']:
-			affiliation = getAuthorAffiliation(author, paper['id'])
-			if affiliation is not AFFNOTFOUND:
-				break
-		paper['affiliation'] = affiliation
-		coords = getMapCoords(affiliation)
-		paper['coords'] = coords
+		# check with arxiv before wasting an api call to ADS (we get 5000 a day)
+		affiliation = queryArxiv(paper['id'])
+		if affiliation is not AFFNOTFOUND:
+			paper['affiliation'] = affiliation
+			coords = getMapCoords(affiliation)
+			paper['coords'] = coords
+			continue
+
+		if not arxivOnly:
+			for author in paper['authors']:
+				affiliation = getAuthorAffiliation(author)
+				if affiliation is not AFFNOTFOUND:
+					break
+			paper['affiliation'] = affiliation
+			coords = getMapCoords(affiliation)
+			paper['coords'] = coords
 
 	return papers
 
+def getADSQueriesLeft():
+	"""
+	Stupidly get the number of queries left by making a query.
+	The way to get it without making a query doesn't seem to work.
+	https://ads.readthedocs.io/en/latest/#rate-limit-usage
+	"""
+	q = ads.SearchQuery(q='star')
+	q.next()
+	return q.response.get_ratelimits()['remaining']
+
 if __name__ == "__main__":
+
+	# id = '1707.05782'
+
+	# queryArxiv(id)
+	# resolvePapers({'id': '1707.05784'}, arxivOnly=True)
+
+	# exit()
+
 	print("Getting and saving data to", time.strftime('%Y%m%d') + '.json')
 	papers = scrapeArxivData()
-	papers = resolveNewArticles(papers)
+	papers = resolvePapers(papers)
 
 	# save today's data
 	datadir = os.path.join('client', 'data')
