@@ -129,3 +129,9 @@ july 4 2017
 * ADS sometimes returns several affiliations separated by semicolons:
 	* for example: "Astrophysics Group, Blackett Laboratory, Imperial College London, London, SW7 2AZ, UK; Department of Mathematics, Imperial College London, London, SW7 2AZ, UK; Department of Astronomy, Stockholm University, Albanova, 10691, Stockholm, Sweden"
 	* this causes geocoding to fail. Fix should be to just split on semicolons
+
+===========
+july 20 2017
+
+* it'd be nice to have the json file incrementally get updated for those times when ADS randomly gives me a 500.
+	* right now if I get a 500 I have to start from the beginning

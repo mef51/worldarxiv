@@ -131,6 +131,7 @@ def getAuthorAffiliation(arxivAuthor):
 			lastname = author[-1]
 			lastnames = [list(map(lambda s: s.replace('.', '').replace(',',''), a.split(' ')))[0] for a in result.author]
 			affiliation = result.aff[lastnames.index(lastname)]
+			affiliation = affiliation.split(';')[0].rstrip() # handle authors with multiple affiliations
 			if affiliation is '-': # ADS will return '-' if it has no affiliation for a paper
 				affiliation = AFFNOTFOUND
 		except (ValueError, IndexError) as e:
@@ -193,14 +194,6 @@ def getADSQueriesLeft():
 	return q.response.get_ratelimits()['remaining']
 
 if __name__ == "__main__":
-
-	# id = '1707.05782'
-
-	# queryArxiv(id)
-	# resolvePapers({'id': '1707.05784'}, arxivOnly=True)
-
-	# exit()
-
 	print("Getting and saving data to", time.strftime('%Y%m%d') + '.json')
 	papers = scrapeArxivData()
 	papers = resolvePapers(papers)
