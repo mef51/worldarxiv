@@ -1,4 +1,5 @@
 (function() {
+
 	function getDate(){
 		var d = new Date();
 		var year  = d.getFullYear() + '';
@@ -63,12 +64,8 @@
 				unresolvedCount++;
 			}
 
-			var marker = L.marker([lat, lng]).addTo(worldmap).bindPopup(popuptext);
-			marker.on('mouseover', function (e) {
-				this.openPopup();
-			});
-			marker.on('mouseout', function (e) {
-				this.closePopup();
+			var marker = new worldarxiv.HoverMarker([lat, lng]).addTo(worldmap).bindPopup(popuptext, {
+				showOnMouseOver: true
 			});
 		}
 		console.log(unresolvedCount + '', 'unresolved papers out of', papers.length + '')
