@@ -64,6 +64,8 @@
 				unresolvedCount++;
 			}
 
+			// var popuptext = '<i>hello</i>';
+
 			var marker = new worldarxiv.HoverMarker([lat, lng]).addTo(worldmap).bindPopup(popuptext, {
 				showOnMouseOver: true
 			});
