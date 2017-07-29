@@ -126,6 +126,7 @@ def getAuthorAffiliation(arxivAuthor):
 	)
 	results = list(results)
 
+	affiliation = AFFNOTFOUND
 	for result in results:
 		try:
 			lastname = author[-1]
@@ -149,10 +150,13 @@ def getMapCoords(affiliation):
 	if affiliation is AFFNOTFOUND:
 		return COORDSNOTFOUND
 
-	coords = gmaps.geocode(affiliation)
-	if len(coords) is not 0:
-		coords = coords[0]['geometry']['location']
-		return coords
+	pieces = affiliation.split(', ')
+	for i, _ in enumerate(pieces):
+		coords = gmaps.geocode(', '.join(pieces[i:]))
+		if len(coords) is not 0:
+			coords = coords[0]['geometry']['location']
+			return coords
+
 	return COORDSNOTFOUND
 
 def resolvePapers(papers, arxivOnly=False):

@@ -25,6 +25,9 @@
 	request(datadir + '/' + datafile).then(function(response){
 		var papers = JSON.parse(response);
 		displayPapers(papers);
+	}, function(reason){
+		console.log(reason);
+		displayPapers({});
 	});
 
 	function displayPapers(papers){
