@@ -13,8 +13,22 @@
 		return year + month + day;
 	}
 
-	function wrap(content, tag){
-		return '<' + tag + '>' + content + '</' + tag + '>';
+	function wrap(content, tag, style){
+		if(style == undefined){
+			style = '';
+		}
+		return `<${tag} class="${style}">${content}</${tag}>`;
+	}
+
+	function clean(string){
+		fixes = { // replace key with val
+			'<': '&lt',
+			'>': '&gt'
+		}
+		for(var fix in fixes){
+			string = string.replace(fix, fixes[fix]);
+		}
+		return string
 	}
 
 	function getArxivUrl(id){
@@ -44,14 +58,14 @@
 		var numRow = 10;
 
 		for(var paper of papers){
-			var id          = wrap(paper.id, 'b');
-			var title       = wrap(paper.title, 'i');
+			var id          = wrap(paper.id, 'span', 'arxivlink');
+			var title       = wrap(clean(paper.title), 'span', 'title');
 			var affiliation = paper.affiliation;
 			var authors     = paper.authors;
 			var url         = getArxivUrl(paper.id);
-			id = '<a href="' + url + '" target=0>' + id + '</a>'
+			id = `<a href="${url}" target=0>${id}</a>`
 
-			var popuptext = [id, title, affiliation].join('<br />');
+			var popuptext = [title, id, authors, affiliation].join('<br />');
 			var lat = lng = 0;
 
 			if(typeof(paper.coords) != 'string'){
@@ -64,10 +78,11 @@
 				unresolvedCount++;
 			}
 
-			// var popuptext = '<i>hello</i>';
-
-			var marker = new worldarxiv.HoverMarker([lat, lng]).addTo(worldmap).bindPopup(popuptext, {
-				showOnMouseOver: true
+			var marker = L.marker([lat, lng]).addTo(worldmap).bindPopup(popuptext, {
+				maxWidth: 500
+			});
+			marker.on('mouseover', function (e) {
+				this.openPopup();
 			});
 		}
 		console.log(unresolvedCount + '', 'unresolved papers out of', papers.length + '')

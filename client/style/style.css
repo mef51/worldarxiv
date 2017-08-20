@@ -51,4 +51,27 @@ table {
 	height: 100vh;
 }
 
+.leaflet-popup-content-wrapper {
+	font-size: 12px;
+}
 
+.leaflet-popup-content {
+
+}
+
+.leaflet-popup-content-wrapper a {
+	font-weight: bold;
+}
+
+.leaflet-popup-content-wrapper .title {
+	font-size: 20px;
+	font-weight: bold;
+}
+
+.leaflet-popup-tip-container {
+
+}
+
+.leaflet-popup-tip {
+
+}

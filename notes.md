@@ -135,3 +135,10 @@ july 20 2017
 
 * it'd be nice to have the json file incrementally get updated for those times when ADS randomly gives me a 500.
 	* right now if I get a 500 I have to start from the beginning
+
+============
+august 20 2017
+
+* notes on styling the popups (use css):
+	* https://stackoverflow.com/questions/12606141/how-would-i-customise-the-look-and-feel-of-the-leaflet-popup
+	* https://www.mapbox.com/mapbox.js/example/v1.0.0/custom-popup-style/
