@@ -45,18 +45,18 @@ table {
 	border-spacing: 0;
 }
 
-/* Styling */
+/**** Styling ****/
 
 #worldmap {
 	height: 100vh;
 }
 
-.leaflet-popup-content-wrapper {
-	font-size: 12px;
-}
-
 .leaflet-popup-content {
 
+}
+
+.leaflet-popup-content-wrapper {
+	font-size: 12px;
 }
 
 .leaflet-popup-content-wrapper a {
@@ -74,4 +74,12 @@ table {
 
 .leaflet-popup-tip {
 
+}
+
+@keyframes fade {
+  from { opacity: 0.5; }
+}
+
+.blinking {
+	animation: fade 0.5s infinite alternate;
 }

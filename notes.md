@@ -142,3 +142,18 @@ august 20 2017
 * notes on styling the popups (use css):
 	* https://stackoverflow.com/questions/12606141/how-would-i-customise-the-look-and-feel-of-the-leaflet-popup
 	* https://www.mapbox.com/mapbox.js/example/v1.0.0/custom-popup-style/
+
+* animations:
+	* https://stackoverflow.com/questions/41884070/how-to-make-markers-in-leaflet-blinking
+	* this could be used to make the icons fade in: http://naturalatlas.github.io/leaflet-transitionedicon/
+* interface:
+	* all these plugins are amazing http://leafletjs.com/plugins.html#user-interface
+	* these ones in particular:
+		* define custom interfaces: https://github.com/yigityuce/Leaflet.Control.Custom
+		* simply add a button: https://github.com/CliffCloud/Leaflet.EasyButton
+		* open a sidebar and show an abstract for example: https://github.com/turbo87/leaflet-sidebar/
+			* there's a v2 that could be used for all the site's metal: https://github.com/turbo87/sidebar-v2/
+		* right-click menu: https://github.com/aratcliffe/Leaflet.contextmenu
+		* zoom to country: https://github.com/ahalota/Leaflet.CountrySelect/
+	* this toolbar plugin could be used to define region filters:
+		* http://leaflet.github.io/Leaflet.toolbar/examples/popup.html

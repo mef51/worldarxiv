@@ -78,9 +78,11 @@
 				unresolvedCount++;
 			}
 
+			L.Icon.Default.prototype.options['className'] = 'blinking'
 			var marker = L.marker([lat, lng]).addTo(worldmap).bindPopup(popuptext, {
 				maxWidth: 500
 			});
+
 			marker.on('mouseover', function (e) {
 				this.openPopup();
 			});
