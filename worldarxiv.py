@@ -101,7 +101,7 @@ def queryArxiv(arxivId):
 
 	return affiliation
 
-def getAuthorAffiliation(arxivAuthor):
+def getAuthorAffiliation(arxivAuthor, maxtries=10):
 	"""
 	Takes an author and looks them up on ADS to get their affiliation
 	`arxivAuthor` is the string of the author's name as arxiv formats it
@@ -124,7 +124,17 @@ def getAuthorAffiliation(arxivAuthor):
 		fl=['aff', 'author', 'title', 'pubdate'],
 		sort='pubdate'
 	)
-	results = list(results)
+
+	# ADS is extremely unreliable.
+	attempt = 0
+	while attempt < maxtries:
+		try:
+			results = list(results)
+			break
+		except ads.exceptions.APIResponseError as e:
+			attempt = attempt + 1
+	if attempt >= maxtries:
+		raise Exception("ADS Failed", attempt, "times. Stopping.")
 
 	affiliation = AFFNOTFOUND
 	for result in results:
