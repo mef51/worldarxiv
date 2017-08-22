@@ -77,9 +77,9 @@ table {
 }
 
 @keyframes fade {
-  from { opacity: 0.5; }
+	from { opacity: 0.3; }
 }
 
 .blinking {
-	animation: fade 0.5s infinite alternate;
+	animation: 0.3s fade infinite alternate;
 }

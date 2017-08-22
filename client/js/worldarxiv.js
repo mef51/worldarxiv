@@ -78,10 +78,19 @@
 				unresolvedCount++;
 			}
 
-			L.Icon.Default.prototype.options['className'] = 'blinking'
 			var marker = L.marker([lat, lng]).addTo(worldmap).bindPopup(popuptext, {
 				maxWidth: 500
 			});
+
+			// apply filters
+			filters = ['interf*'];
+			var markerElement = marker._icon;
+			for(filter of filters){
+				var re = new RegExp(filter, 'gi');
+				if(re.test(title)){
+					markerElement.classList.add('blinking')
+				}
+			}
 
 			marker.on('mouseover', function (e) {
 				this.openPopup();
