@@ -1,3 +1,4 @@
 *.key
 client/data/
 __pycache__
+bower_components/

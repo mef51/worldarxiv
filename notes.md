@@ -157,3 +157,8 @@ august 20 2017
 		* zoom to country: https://github.com/ahalota/Leaflet.CountrySelect/
 	* this toolbar plugin could be used to define region filters:
 		* http://leaflet.github.io/Leaflet.toolbar/examples/popup.html
+
+=============
+august 22 2017
+
+* you can hit the arxiv API from the browser! This saves me a lot of bandwidth for when I want to load abstracts for example. CORS usually stops me from doing this

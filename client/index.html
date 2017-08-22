@@ -9,16 +9,18 @@
 	<script src="https://unpkg.com/leaflet@1.2.0/dist/leaflet.js"
 		integrity="sha512-lInM/apFSqyy1o6s89K4iQUKg6ppXEgsVxT35HbzUupEVRh2Eu9Wdl4tHj7dZO0s1uvplcYGmt3498TtHq+log=="
 		crossorigin=""></script>
+	<link rel="stylesheet" href="bower_components/leaflet-sidebar/src/L.Control.Sidebar.css" />
 	<script type='text/javascript'>
 		window.worldarxiv = {}; // make a namespace
 	</script>
-	<script src='js/request.js'></script>
-	<script src='js/hovermarker.js'></script>
-	<script src='js/worldarxiv.js'></script>
+	<script type='text/javascript' src='js/libs/request.js'></script>
+	<script type='text/javascript' src='js/libs/Leaflet.Control.Custom.js'></script>
+	<script type='text/javascript' src='bower_components/leaflet-sidebar/src/L.Control.Sidebar.js'></script>
+	<script type='text/javascript' src='js/worldarxiv.js'></script>
 	<link rel="stylesheet" href="style/style.css">
 </head>
 <body>
-	<div id="worldmap">
-	</div>
+	<div id="sidebar"></div>
+	<div id="worldmap"></div>
 </body>
 </html>

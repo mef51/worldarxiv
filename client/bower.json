@@ -1,0 +1,21 @@
+{
+  "name": "worldarxiv",
+  "authors": [
+    "mef51 <hms.mohammed@gmail.com>"
+  ],
+  "description": "see papers published today from around the world",
+  "main": "",
+  "license": "MIT",
+  "homepage": "worldarxiv.org",
+  "private": true,
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "test",
+    "tests"
+  ],
+  "dependencies": {
+    "leaflet-sidebar": "^0.2.0"
+  }
+}

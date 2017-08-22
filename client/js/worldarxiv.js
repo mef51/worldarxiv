@@ -1,4 +1,13 @@
 (function() {
+	var datadir = 'data';
+	var datafile = getDate() + '.json';
+	request(datadir + '/' + datafile).then(function(response){
+		var papers = JSON.parse(response);
+		displayPapers(papers);
+	}, function(reason){
+		console.log(reason);
+		displayPapers({});
+	});
 
 	function getDate(){
 		var d = new Date();
@@ -35,21 +44,29 @@
 		return 'https://arxiv.org/abs/' + id
 	}
 
-	var datadir = 'data';
-	var datafile = getDate() + '.json';
-	request(datadir + '/' + datafile).then(function(response){
-		var papers = JSON.parse(response);
-		displayPapers(papers);
-	}, function(reason){
-		console.log(reason);
-		displayPapers({});
-	});
+	function addFilterInterface(map){
+		L.control.custom({
+			position: 'topleft',
+			content: '<button type="button">Wahazzaaa</button>'
+		}).addTo(map);
+	}
 
 	function displayPapers(papers){
 		var worldmap = L.map('worldmap').setView([30, 10], 3);
 		L.tileLayer('http://{s}.tile.osm.org/{z}/{x}/{y}.png', {
 			attribution: '&copy; <a href="http://osm.org/copyright">OpenStreetMap</a>'
 		}).addTo(worldmap);
+
+		var sidebar = L.control.sidebar('sidebar', {
+			closeButton: true,
+			position: 'left'
+		});
+		worldmap.addControl(sidebar);
+		worldmap.on('click', function () {
+			sidebar.hide();
+		});
+
+		addFilterInterface(worldmap);
 
 		// plot the unresolved papers in a square like pattern in the middle of the atlantic ocean
 		var unresolvedCount = 0;
@@ -83,7 +100,7 @@
 			});
 
 			// apply filters
-			filters = ['interf*'];
+			filters = ['interf*', 'circular', 'polari*', 'orion*'];
 			var markerElement = marker._icon;
 			for(filter of filters){
 				var re = new RegExp(filter, 'gi');
@@ -94,6 +111,9 @@
 
 			marker.on('mouseover', function (e) {
 				this.openPopup();
+			});
+			marker.on('click', function (e) {
+				sidebar.toggle();
 			});
 		}
 		console.log(unresolvedCount + '', 'unresolved papers out of', papers.length + '')
