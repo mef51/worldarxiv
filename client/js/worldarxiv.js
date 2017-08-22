@@ -103,7 +103,6 @@
 
 			request('../popup.html').then(function(popupRes){
 				var popupTemplate = eval('`' + popupRes + '`');
-				console.log([lat, lng]);
 				var marker = L.marker([lat, lng]).addTo(worldmap).bindPopup(popupTemplate, {
 					maxWidth: 500
 				});
