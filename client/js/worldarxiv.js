@@ -41,7 +41,11 @@
 	}
 
 	function getArxivUrl(id){
-		return 'https://arxiv.org/abs/' + id
+		return `https://arxiv.org/abs/${id}`
+	}
+
+	function getArxivAPIUrl(id){
+		return `http://export.arxiv.org/api/query?id_list=${id}`
 	}
 
 	function addFilterInterface(map){
@@ -58,8 +62,8 @@
 		}).addTo(worldmap);
 
 		var sidebar = L.control.sidebar('sidebar', {
-			closeButton: true,
-			position: 'left'
+			position: 'left',
+			closeButton: true
 		});
 		worldmap.addControl(sidebar);
 		worldmap.on('click', function () {
@@ -74,15 +78,15 @@
 		var posIncrement = 2;
 		var numRow = 10;
 
-		for(var paper of papers){
+		papers.forEach(function(paper){
 			var id          = wrap(paper.id, 'span', 'arxivlink');
 			var title       = wrap(clean(paper.title), 'span', 'title');
 			var affiliation = paper.affiliation;
 			var authors     = paper.authors;
 			var url         = getArxivUrl(paper.id);
-			id = `<a href="${url}" target=0>${id}</a>`
+			id = `<a href="${url}" target=0>${id}</a>`;
 
-			var popuptext = [title, id, authors, affiliation].join('<br />');
+			var popuptext = [title, id, authors.join(', '), affiliation].join('<br />');
 			var lat = lng = 0;
 
 			if(typeof(paper.coords) != 'string'){
@@ -113,9 +117,25 @@
 				this.openPopup();
 			});
 			marker.on('click', function (e) {
-				sidebar.toggle();
+				sidebar.setContent('');
+				request('../sidebar.html').then(function(templRes){
+					request(getArxivAPIUrl(paper.id)).then(function(arxivRes){
+						var parser = new DOMParser();
+						var arxivDoc = parser.parseFromString(arxivRes, "text/xml");
+						var summary = arxivDoc.getElementsByTagName('summary')[0].innerHTML;
+						var template = eval('`' + templRes + '`');
+						sidebar.setContent(template);
+					}, function(arxivReason){
+						console.log("arXiv API GET failed:");
+						console.log(reason);
+					});
+				}, function(reason){
+					console.log("Template load failed:");
+					console.log(reason);
+				});
+				sidebar.show();
 			});
-		}
+		});
 		console.log(unresolvedCount + '', 'unresolved papers out of', papers.length + '')
 	}
 
