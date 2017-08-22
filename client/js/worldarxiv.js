@@ -48,6 +48,10 @@
 		return `http://export.arxiv.org/api/query?id_list=${id}`
 	}
 
+	function getArxivPDF(id){
+		return `https://arxiv.org/pdf/${id}.pdf`;
+	}
+
 	function addFilterInterface(map){
 		L.control.custom({
 			position: 'topleft',

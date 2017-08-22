@@ -1,4 +1,7 @@
+<p class='arxivlink'>
+	arXiv.org &gt astro-ph &gt arXiv:<a href='${url}' target=0>${paper.id}</a> &gt
+	<a href='${getArxivPDF(paper.id)}' target=0>pdf</a>
+</p>
 <h1 class="popuptitle">${clean(paper.title)}</h1>
-<a class='arxivlink' href='${url}' target=0>${paper.id}</a>
 <p class='authors'>${authors.join(', ')}</p>
 <p class='affiliation'>${affiliation}</p>
