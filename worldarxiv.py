@@ -95,7 +95,7 @@ def queryArxiv(arxivId):
 	title = data.find('title').text.replace('\n', '').rstrip()
 	authors = list(map(lambda s: s.find('name').text, data.find_all('author')))
 	if data.find('author').find('affiliation') is not None:
-		affiliation = list(map(lambda s: s.find('affiliation').text, data.find_all('author')))[0]
+		affiliation = data.find('author').find('affiliation').text
 	else:
 		affiliation = AFFNOTFOUND
 
