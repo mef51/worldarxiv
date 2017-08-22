@@ -68,7 +68,7 @@ a:hover {
 	font-weight: bold;
 }
 
-.leaflet-popup-content-wrapper .title {
+.leaflet-popup-content-wrapper .popuptitle {
 	font-size: 20px;
 	font-weight: bold;
 }
@@ -89,7 +89,7 @@ a:hover {
 	animation: 0.3s fade infinite alternate;
 }
 
-#sidebar > .arxivlink {
+.arxivlink {
 	font-weight: bold;
 	font-size: 1.2em;
 }
@@ -98,13 +98,13 @@ a:hover {
 	margin-bottom: 0px;
 }
 
-#sidebar > .authors {
+.authors {
 	font-weight: bold;
 	font-size: 0.9em;
 	color: #444;
 }
 
-#sidebar > .affiliations {
+.affiliation {
 	font-style: italic;
 	font-size: 0.9em;
 	color: #999;

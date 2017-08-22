@@ -79,15 +79,13 @@
 		var numRow = 10;
 
 		papers.forEach(function(paper){
-			var id          = wrap(paper.id, 'span', 'arxivlink');
-			var title       = wrap(clean(paper.title), 'span', 'title');
+			var id          = paper.id;
+			var title       = clean(paper.title);
 			var affiliation = paper.affiliation;
 			var authors     = paper.authors;
 			var url         = getArxivUrl(paper.id);
-			id = `<a href="${url}" target=0>${id}</a>`;
 
-			var popuptext = [title, id, authors.join(', '), affiliation].join('<br />');
-			var lat = lng = 0;
+			var lat = 0; var lng = 0;
 
 			if(typeof(paper.coords) != 'string'){
 				lat = paper.coords.lat;
@@ -99,41 +97,48 @@
 				unresolvedCount++;
 			}
 
-			var marker = L.marker([lat, lng]).addTo(worldmap).bindPopup(popuptext, {
-				maxWidth: 500
-			});
+			request('../popup.html').then(function(popupRes){
+				var popupTemplate = eval('`' + popupRes + '`');
+				console.log([lat, lng]);
+				var marker = L.marker([lat, lng]).addTo(worldmap).bindPopup(popupTemplate, {
+					maxWidth: 500
+				});
 
-			// apply filters
-			filters = ['interf*', 'circular', 'polari*', 'orion*'];
-			var markerElement = marker._icon;
-			for(filter of filters){
-				var re = new RegExp(filter, 'gi');
-				if(re.test(title)){
-					markerElement.classList.add('blinking')
+				// apply filters
+				filters = ['interf*', 'circular', 'polari*', 'orion*'];
+				var markerElement = marker._icon;
+				for(filter of filters){
+					var re = new RegExp(filter, 'gi');
+					if(re.test(title)){
+						markerElement.classList.add('blinking')
+					}
 				}
-			}
 
-			marker.on('mouseover', function (e) {
-				this.openPopup();
-			});
-			marker.on('click', function (e) {
-				sidebar.setContent('');
-				request('../sidebar.html').then(function(templRes){
-					request(getArxivAPIUrl(paper.id)).then(function(arxivRes){
-						var parser = new DOMParser();
-						var arxivDoc = parser.parseFromString(arxivRes, "text/xml");
-						var summary = arxivDoc.getElementsByTagName('summary')[0].innerHTML;
-						var template = eval('`' + templRes + '`');
-						sidebar.setContent(template);
-					}, function(arxivReason){
-						console.log("arXiv API GET failed:");
+				marker.on('mouseover', function (e) {
+					this.openPopup();
+				});
+				marker.on('click', function (e) {
+					sidebar.setContent('');
+					request('../sidebar.html').then(function(sidebarRes){
+						request(getArxivAPIUrl(paper.id)).then(function(arxivRes){
+							var parser = new DOMParser();
+							var arxivDoc = parser.parseFromString(arxivRes, "text/xml");
+							var summary = arxivDoc.getElementsByTagName('summary')[0].innerHTML;
+							var sidebarTemplate = eval('`' + sidebarRes + '`');
+							sidebar.setContent(sidebarTemplate);
+						}, function(arxivReason){
+							console.log("arXiv API GET failed:");
+							console.log(reason);
+						});
+					}, function(reason){
+						console.log("Sidebar Template load failed:");
 						console.log(reason);
 					});
-				}, function(reason){
-					console.log("Template load failed:");
-					console.log(reason);
+					sidebar.show();
 				});
-				sidebar.show();
+			}, function(reason){
+				console.log("Popup Template load failed:");
+				console.log(reason);
 			});
 		});
 		console.log(unresolvedCount + '', 'unresolved papers out of', papers.length + '')
