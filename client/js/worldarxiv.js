@@ -53,10 +53,12 @@
 	}
 
 	function addFilterInterface(map){
-		L.control.custom({
-			position: 'topleft',
-			content: '<button type="button">Wahazzaaa</button>'
-		}).addTo(map);
+		// L.control.custom({
+		// 	position: 'topleft',
+		// 	content: '<button type="button">Wahazzaaa</button>'
+		// }).addTo(map);
+		// L.easyButton('fa-crosshairs fa-lg', function)
+
 	}
 
 	function displayPapers(papers){
@@ -108,19 +110,34 @@
 				});
 
 				// apply filters
-				filters = ['interf*', 'circular', 'polari*', 'orion*'];
+				filters = ['interf*', 'circular', 'polari*', 'orion*', 'SMA', 'ALMA', 'LIGO', 'superradiance'];
+				authorFilters = ['houde', 'rao', 'girart', 'kellogg', 'tannock', 'arnason', 'hatfield', 'marr', 'rajabi'];
+				affiliationFilters = ['Western'];
 				var markerElement = marker._icon;
 				for(filter of filters){
 					var re = new RegExp(filter, 'gi');
 					if(re.test(title)){
-						markerElement.classList.add('blinking')
+						markerElement.classList.add('blinking');
+					}
+				}
+				for(filter of authorFilters){
+					var re = new RegExp(filter, 'gi');
+					if(re.test(authors.join(', '))){
+						markerElement.classList.add('blinking');
+					}
+				}
+				for(filter of affiliationFilters){
+					var re = new RegExp(filter, 'gi');
+					if(re.test(affiliation)){
+						markerElement.classList.add('blinking');
 					}
 				}
 
-				marker.on('mouseover', function (e) {
+
+				marker.on('mouseover', function(e) {
 					this.openPopup();
 				});
-				marker.on('click', function (e) {
+				marker.on('click', function(e) {
 					sidebar.setContent('');
 					request('../sidebar.html').then(function(sidebarRes){
 						request(getArxivAPIUrl(paper.id)).then(function(arxivRes){
