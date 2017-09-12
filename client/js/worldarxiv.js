@@ -110,7 +110,7 @@
 				});
 
 				// apply filters
-				filters = ['interf*', 'circular', 'polari*', 'orion*', 'SMA', 'ALMA', 'LIGO', 'superradiance'];
+				filters = ['interf', 'circular', 'polari*', 'orion*', 'SMA', 'ALMA', 'LIGO', 'superradiance'];
 				authorFilters = ['houde', 'rao', 'girart', 'kellogg', 'tannock', 'arnason', 'hatfield', 'marr', 'rajabi'];
 				affiliationFilters = ['Western'];
 				var markerElement = marker._icon;

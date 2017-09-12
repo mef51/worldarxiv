@@ -162,3 +162,8 @@ august 20 2017
 august 22 2017
 
 * you can hit the arxiv API from the browser! This saves me a lot of bandwidth for when I want to load abstracts for example. CORS usually stops me from doing this
+
+==============
+august 30 2017
+* i need to virtualenv for the nfs host
+	https://stackoverflow.com/questions/7143077/how-can-i-install-packages-in-my-home-folder-with-pip

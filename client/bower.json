@@ -16,6 +16,7 @@
     "tests"
   ],
   "dependencies": {
-    "leaflet-sidebar": "^0.2.0"
+    "leaflet-sidebar": "^0.2.0",
+    "Leaflet.EasyButton": "^2.2.0"
   }
 }
