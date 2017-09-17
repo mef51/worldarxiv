@@ -53,16 +53,26 @@
 	}
 
 	function addFilterInterface(map){
-		// L.control.custom({
-		// 	position: 'topleft',
-		// 	content: '<button type="button">Wahazzaaa</button>'
-		// }).addTo(map);
-		// L.easyButton('fa-crosshairs fa-lg', function)
-
+		request('../filter.html').then(function(filterRes){
+			L.control.custom({
+				position: 'topleft',
+				content : eval('`' + filterRes + '`'),
+				style   :
+				{
+					position: 'absolute',
+					left: '50px',
+					top: '0px',
+					width: '200px',
+				}
+			}).addTo(map);
+		}, function(reason){
+				console.log("Filter Template load failed:");
+				console.log(reason);
+		});
 	}
 
 	function displayPapers(papers){
-		var worldmap = L.map('worldmap').setView([30, 10], 3);
+		var worldmap = L.map('worldmap', {zoomControl: false}).setView([30, 10], 3);
 		L.tileLayer('http://{s}.tile.osm.org/{z}/{x}/{y}.png', {
 			attribution: '&copy; <a href="http://osm.org/copyright">OpenStreetMap</a>'
 		}).addTo(worldmap);
