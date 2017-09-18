@@ -17,7 +17,8 @@
   ],
   "dependencies": {
     "leaflet-sidebar": "^0.2.0",
-    "Leaflet.EasyButton": "^2.2.0"
+    "Leaflet.EasyButton": "^2.2.0",
+    "Leaflet.Control.Custom": "*"
   },
   "resolutions": {
     "leaflet": "~1.0.1"
