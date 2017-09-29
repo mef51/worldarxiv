@@ -57,12 +57,17 @@
 			L.control.custom({
 				position: 'topleft',
 				content : eval('`' + filterRes + '`'),
-				style   :
-				{
+				style   : {
 					position: 'absolute',
 					left: '50px',
 					top: '0px',
 					width: '200px',
+				},
+				events: {
+					submit: function(e){
+						L.DomEvent.preventDefault(e);
+						console.log(e);
+					}
 				}
 			}).addTo(map);
 		}, function(reason){

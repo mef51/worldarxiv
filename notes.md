@@ -167,3 +167,7 @@ august 22 2017
 august 30 2017
 * i need to virtualenv for the nfs host
 	https://stackoverflow.com/questions/7143077/how-can-i-install-packages-in-my-home-folder-with-pip
+
+=============
+sept 22 2017
+* might want to implement the filter interface like this: http://odoe.net/blog/custom-leaflet-control/
