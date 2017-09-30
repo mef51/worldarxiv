@@ -97,23 +97,11 @@
 						localStorage.setItem('filters', JSON.stringify(worldarxiv.filters));
 
 						// add the filter to the page and mark papers that match
-						addFilter(newFilter, map);
+						applyFilters(map);
 					}
 				}
 			}).addTo(map);
-
-			// display existing filters
-			// todo: distinguish between different kinds of filters
-			var filters = worldarxiv.filters;
-			for(filter of filters['keywords']){
-				addFilter(filter, map);
-			}
-			for(filter of filters['authors']){
-				addFilter(filter, map);
-			}
-			for(filter of filters['affiliations']){
-				addFilter(filter, map);
-			}
+			applyFilters(map);
 		}, function(reason){
 				console.log("Filter Form Template load failed:");
 				console.log(reason);
@@ -124,35 +112,66 @@
 	* Add the filter to the page and match it against the papers.
 	* This does not save the filter to localStorage.
 	*/
-	function addFilter(filter, map){
+	function applyFilters(map){
+		// remove filters
+		var oldfilters = document.getElementsByClassName('filter');
+		var n = oldfilters.length;
+		for(var i = 0; i < n; i++){
+			console.log('delete');
+			oldfilters[0].parentElement.remove();
+		}
+
+		// todo: distinguish between different kinds of filters
+		var filters = worldarxiv.filters;
+		var filters = filters['keywords'].concat(filters['authors'], filters['affiliations']);
+		var filterResults = []; // list of {filter: 'blah', 'matches': 4}
+
+		// sort by most number of matches
+		for(filter of filters){
+			var matches = testFilter(filter);
+			filterResults.push({filter: filter, matches: matches});
+		}
+		filterResults.sort(function(a, b){
+			return b.matches - a.matches;
+		});
+
 		request('../filter.html').then(function(filterRes){
-			var numMatches = applyFilter(filter);
-			L.control.custom({
-				position: 'topleft',
-				content : eval('`' + filterRes + '`'),
-				events: {
-					click: function(e){
-						e.preventDefault();
-						var source = e.target.id;
-						if(source == 'nummatch'){
-							console.log('nummatch');
-						} else if(source == 'filter'){
-							// console.log('filter');
-						} else if(source == 'delete'){
-							var filterTypes = ['keywords', 'authors', 'affiliations'];
-							applyFilter(filter, true);
-							filterTypes.forEach(function(type){
-								var index = worldarxiv.filters[type].indexOf(filter);
-								if(index > -1){
-									worldarxiv.filters[type].splice(index, 1);
+			filterResults.forEach(function(result){
+				var filter = result.filter;
+				var matches = result.matches;
+				L.control.custom({
+					position: 'topleft',
+					content : eval('`' + filterRes + '`'),
+					events: {
+						click: function(e){
+							e.preventDefault();
+							var source = e.target.id;
+							if(source == 'nummatch'){
+								console.log('nummatch');
+							} else if(source == 'filter'){
+								// console.log('filter');
+							} else if(source == 'delete'){
+								var filterTypes = ['keywords', 'authors', 'affiliations'];
+								testFilter(filter, true);
+								filterTypes.forEach(function(type){
+									var index = worldarxiv.filters[type].indexOf(filter);
+									if(index > -1){
+										worldarxiv.filters[type].splice(index, 1);
+									}
+								});
+								localStorage.setItem('filters', JSON.stringify(worldarxiv.filters));
+
+								// traverse up the tree until we find the right div then remove it
+								var target = e.target;
+								while(!target.parentElement.classList.contains('leaflet-control')){
+									target = target.parentElement;
 								}
-							});
-							localStorage.setItem('filters', JSON.stringify(worldarxiv.filters));
-							e.target.parentElement.parentElement.remove()
+								target.parentElement.remove();
+							}
 						}
 					}
-				}
-			}).addTo(map);
+				}).addTo(map);
+			});
 		}, function(reason){
 			console.log("Filter Template load failed:");
 			console.log(reason);
@@ -162,7 +181,7 @@
 	/**
 	* Applies the filter to all papers and returns the number of papers that match
 	*/
-	function applyFilter(filter, remove=false){
+	function testFilter(filter, remove=false){
 		var count = 0;
 		worldarxiv.papers.forEach(function(paper){
 			var title         = clean(paper.title);
