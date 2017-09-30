@@ -77,7 +77,34 @@ a:hover {
 	font-weight: bold;
 }
 
-.leaflet-popup-content-wrapper .popuptitle {
+.headtitle {
+	font-size: 30px;
+	font-weight: bold;
+	margin-bottom: 0px;
+	margin-top: 15px;
+	margin-left: 5px;
+	padding-bottom: 0px;
+}
+
+.headsubtitle {
+	font-weight: bold;
+	font-size: 0.9em;
+	color: #444;
+	margin-top: 0px;
+	margin-left: 5px;
+}
+
+.headvignette {
+	position: fixed;
+	top: 0;
+	left: 0;
+	width: 100%;
+	height: 50px;
+	background: linear-gradient(0deg, rgba(0,0,0,0), rgba(0,0,0,0.3));
+	z-index: -10000;
+}
+
+.popuptitle {
 	font-size: 20px;
 	font-weight: bold;
 	margin-bottom: 15px;
@@ -105,7 +132,7 @@ a:hover {
 }
 
 #sidebar > h1 {
-	margin-bottom: 0px;
+	/*margin-bottom: 0px;*/
 }
 
 .authors {

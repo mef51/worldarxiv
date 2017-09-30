@@ -1,12 +1,16 @@
 (function() {
 	var datadir = 'data';
 	var datafile = getDate() + '.json';
+
+	// load data then display the page
 	request(datadir + '/' + datafile).then(function(response){
 		var papers = JSON.parse(response);
-		displayPapers(papers);
+		worldarxiv.papers = papers;
+		initializeFilters();
+		initializeMap(papers);
 	}, function(reason){
 		console.log(reason);
-		displayPapers({});
+		initializeMap({});
 	});
 
 	function getDate(){
@@ -20,6 +24,14 @@
 		if (day.length == 1) { day = '0' + day }
 
 		return year + month + day;
+	}
+
+	function prettyDate(){
+		var d = new Date();
+		var months = ['January','February','March','April','May','June','July',
+			'August','September','October','November','December'];
+
+		return `${d.getDate()} ${months[d.getMonth()]} ${d.getFullYear()}`;
 	}
 
 	function wrap(content, tag, style){
@@ -52,31 +64,127 @@
 		return `https://arxiv.org/pdf/${id}.pdf`;
 	}
 
-	function addFilterInterface(map){
-		request('../filter.html').then(function(filterRes){
+	function initializeFilters(){
+		if(!localStorage.getItem('filters')) {
+			var filters = {keywords: [], authors: [], affiliations: []};
+			localStorage.setItem('filters', JSON.stringify(filters));
+		}
+		worldarxiv.filters = JSON.parse(localStorage.getItem('filters'));
+	}
+
+	function createFilterInterface(map){
+		request('../filterform.html').then(function(filterRes){
 			L.control.custom({
 				position: 'topleft',
 				content : eval('`' + filterRes + '`'),
-				style   : {
-					position: 'absolute',
-					left: '50px',
-					top: '0px',
-					width: '200px',
-				},
+				style   : {},
 				events: {
 					submit: function(e){
-						L.DomEvent.preventDefault(e);
-						console.log(e);
+						e.preventDefault();
+						var input = document.getElementById('newfilter');
+						var newFilter = input.value;
+						input.value = '';
+
+						// save the filter
+						worldarxiv.filters['keywords'].push(newFilter);
+						localStorage.setItem('filters', JSON.stringify(worldarxiv.filters));
+
+						// add the filter to the page and mark papers that match
+						addFilter(newFilter, map);
 					}
 				}
 			}).addTo(map);
+
+			// display existing filters
+			// todo: distinguish between different kinds of filters
+			var filters = worldarxiv.filters;
+			for(filter of filters['keywords']){
+				addFilter(filter, map);
+			}
+			for(filter of filters['authors']){
+				addFilter(filter, map);
+			}
+			for(filter of filters['affiliations']){
+				addFilter(filter, map);
+			}
 		}, function(reason){
-				console.log("Filter Template load failed:");
+				console.log("Filter Form Template load failed:");
 				console.log(reason);
 		});
 	}
 
-	function displayPapers(papers){
+	/**
+	* Add the filter to the page and match it against the papers.
+	* This does not save the filter to localStorage.
+	*/
+	function addFilter(filter, map){
+		request('../filter.html').then(function(filterRes){
+			var numMatches = applyFilter(filter);
+			L.control.custom({
+				position: 'topleft',
+				content : eval('`' + filterRes + '`'),
+				events: {
+					click: function(e){
+						e.preventDefault();
+						var source = e.target.id;
+						if(source == 'nummatch'){
+							console.log('nummatch');
+						} else if(source == 'filter'){
+							// console.log('filter');
+						} else if(source == 'delete'){
+							var filterTypes = ['keywords', 'authors', 'affiliations'];
+							applyFilter(filter, true);
+							filterTypes.forEach(function(type){
+								var index = worldarxiv.filters[type].indexOf(filter);
+								if(index > -1){
+									worldarxiv.filters[type].splice(index, 1);
+								}
+							});
+							localStorage.setItem('filters', JSON.stringify(worldarxiv.filters));
+							e.target.parentElement.parentElement.remove()
+						}
+					}
+				}
+			}).addTo(map);
+		}, function(reason){
+			console.log("Filter Template load failed:");
+			console.log(reason);
+		});
+	}
+
+	/**
+	* Applies the filter to all papers and returns the number of papers that match
+	*/
+	function applyFilter(filter, remove=false){
+		var count = 0;
+		worldarxiv.papers.forEach(function(paper){
+			var title         = clean(paper.title);
+			var affiliation   = paper.affiliation;
+			var authors       = paper.authors;
+			var url           = getArxivUrl(paper.id);
+			var markerElement = paper.marker._icon;
+
+			var re = new RegExp(filter, 'gi');
+			var matched = false;
+			var matchClass = 'blinking'; // the css class to add if a match is found
+			var fields = [title, authors.join(', '), affiliation];
+			window.markerElement = markerElement;
+			fields.forEach(function(field){
+				if(re.test(field)){
+					if(remove){
+						markerElement.classList.remove(matchClass);
+					} else {
+						markerElement.classList.add(matchClass);
+					}
+					matched = true;
+				}
+			});
+			if(matched){ count++; }
+		});
+		return count;
+	}
+
+	function initializeMap(papers){
 		var worldmap = L.map('worldmap', {zoomControl: false}).setView([30, 10], 3);
 		L.tileLayer('http://{s}.tile.osm.org/{z}/{x}/{y}.png', {
 			attribution: '&copy; <a href="http://osm.org/copyright">OpenStreetMap</a>'
@@ -91,7 +199,16 @@
 			sidebar.hide();
 		});
 
-		addFilterInterface(worldmap);
+		request('../title.html').then(function(titleRes){
+			var date = prettyDate();
+			L.control.custom({
+				position: 'topleft',
+				content : eval('`' + titleRes + '`'),
+			}).addTo(worldmap);
+		}, function(reason){
+			console.log("Title Template load failed:");
+			console.log(reason);
+		});
 
 		// plot the unresolved papers in a square like pattern in the middle of the atlantic ocean
 		var unresolvedCount = 0;
@@ -105,7 +222,6 @@
 			var affiliation = paper.affiliation;
 			var authors     = paper.authors;
 			var url         = getArxivUrl(paper.id);
-
 			var lat = 0; var lng = 0;
 
 			if(typeof(paper.coords) != 'string'){
@@ -118,36 +234,13 @@
 				unresolvedCount++;
 			}
 
+			var marker = L.marker([lat, lng]).addTo(worldmap);
+			paper.marker = marker;
 			request('../popup.html').then(function(popupRes){
 				var popupTemplate = eval('`' + popupRes + '`');
-				var marker = L.marker([lat, lng]).addTo(worldmap).bindPopup(popupTemplate, {
+				marker.bindPopup(popupTemplate, {
 					maxWidth: 500
 				});
-
-				// apply filters
-				filters = ['interf', 'circular', 'polari*', 'orion*', 'SMA', 'ALMA', 'LIGO', 'superradiance'];
-				authorFilters = ['houde', 'rao', 'girart', 'kellogg', 'tannock', 'arnason', 'hatfield', 'marr', 'rajabi'];
-				affiliationFilters = ['Western'];
-				var markerElement = marker._icon;
-				for(filter of filters){
-					var re = new RegExp(filter, 'gi');
-					if(re.test(title)){
-						markerElement.classList.add('blinking');
-					}
-				}
-				for(filter of authorFilters){
-					var re = new RegExp(filter, 'gi');
-					if(re.test(authors.join(', '))){
-						markerElement.classList.add('blinking');
-					}
-				}
-				for(filter of affiliationFilters){
-					var re = new RegExp(filter, 'gi');
-					if(re.test(affiliation)){
-						markerElement.classList.add('blinking');
-					}
-				}
-
 
 				marker.on('mouseover', function(e) {
 					this.openPopup();
@@ -176,6 +269,7 @@
 				console.log(reason);
 			});
 		});
+		createFilterInterface(worldmap);
 		console.log(unresolvedCount + '', 'unresolved papers out of', papers.length + '')
 	}
 

@@ -171,3 +171,14 @@ august 30 2017
 =============
 sept 22 2017
 * might want to implement the filter interface like this: http://odoe.net/blog/custom-leaflet-control/
+
+==============
+sept 29 2017
+* I probably want localStorage instead of cookies
+	* https://developer.mozilla.org/en-US/docs/Web/API/Web_Storage_API#Storage
+* I shouldn't launch until I have my own copy of the map data so that I don't harass OSM:
+	* https://operations.osmfoundation.org/policies/tiles/
+	* ... or it's probably fine. it's the same load as someone visiting osm.
+	* they have some info on setting up your own osm server
+* I can animate my markers easily if I use font-awesome: http://fontawesome.io/examples/
+* render math with katex
