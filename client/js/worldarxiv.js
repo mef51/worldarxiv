@@ -28,10 +28,17 @@
 
 	function prettyDate(){
 		var d = new Date();
+		// set the date to the nearest friday if it's the weekend
+		if(d.getDay() == 0){ // sunday
+			d.setDate(d.getDate() - 2);
+		} else if (d.getDay() == 6){ // saturday
+			d.setDate(d.getDate() - 1);
+		}
 		var months = ['January','February','March','April','May','June','July',
 			'August','September','October','November','December'];
+		var days = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday'];
 
-		return `${d.getDate()} ${months[d.getMonth()]} ${d.getFullYear()}`;
+		return `${days[d.getDay()-1]} ${months[d.getMonth()]}  ${d.getDate()}, ${d.getFullYear()}`;
 	}
 
 	function wrap(content, tag, style){
@@ -200,6 +207,7 @@
 		});
 
 		request('../title.html').then(function(titleRes){
+			var list = 'astro-ph';
 			var date = prettyDate();
 			L.control.custom({
 				position: 'topleft',
