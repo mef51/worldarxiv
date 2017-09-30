@@ -104,6 +104,14 @@ a:hover {
 	z-index: -10000;
 }
 
+#nummatch {
+	font-weight: bold;
+}
+
+#filter {
+	min-width: 90px;
+}
+
 .popuptitle {
 	font-size: 20px;
 	font-weight: bold;

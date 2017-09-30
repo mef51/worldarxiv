@@ -114,10 +114,9 @@
 	*/
 	function applyFilters(map){
 		// remove filters
-		var oldfilters = document.getElementsByClassName('filter');
+		var oldfilters = document.getElementsByClassName('filter-group');
 		var n = oldfilters.length;
 		for(var i = 0; i < n; i++){
-			console.log('delete');
 			oldfilters[0].parentElement.remove();
 		}
 
