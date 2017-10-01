@@ -46,6 +46,7 @@
 		var posIncrement = 2;
 		var numRow = 10;
 
+		var pinnedLocations = []; // temporarily track where markers are to overlaps
 		papers.forEach(function(paper){
 			var id          = paper.id;
 			var title       = clean(paper.title);
@@ -57,7 +58,12 @@
 			if(typeof(paper.coords) != 'string'){
 				lat = paper.coords.lat;
 				lng = paper.coords.lng;
+				if(pinnedLocations.indexOf([lat,lng].toString()) > -1){
+					lng += 0.2;
+				}
+				pinnedLocations.push([lat,lng].toString());
 			} else {
+				// lay unresolved papers out in rows of `numRow`
 				var rowbumper = Math.floor((unresolvedCount%(numRow+unresolvedCount))/numRow);
 				lat = unresolvedPos[0] - posIncrement*rowbumper;
 				lng = unresolvedPos[1] + posIncrement*(unresolvedCount%numRow);
@@ -169,6 +175,7 @@
 			filterResults.forEach(function(result){
 				var filter = result.filter;
 				var matches = result.matches;
+				var matchingPapers = result.papers;
 				L.control.custom({
 					position: 'topleft',
 					content : eval('`' + filterRes + '`'),
@@ -177,7 +184,9 @@
 							e.preventDefault();
 							var source = e.target.id;
 							if(source == 'nummatch'){
-								console.log('nummatch');
+								matchingPapers.forEach(function(paper){
+									console.log(paper.title);
+								})
 							} else if(source == 'filter'){
 								// console.log('filter');
 							} else if(source == 'delete'){
