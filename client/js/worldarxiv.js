@@ -191,16 +191,22 @@
 								var sidebar = worldarxiv.sidebar;
 								sidebar.setContent('');
 								request('../filterresults.html').then(function(filterResultsRes){
-									var sidebarContent = '';
+									var templates = filterResultsRes.split(/<!--:[^>]*-->/gi);
+									var sidebarContent = eval('`' + templates[0] + '`');
+
 									matchingPapers.forEach(function(paper){
 										var title       = clean(paper.title);
 										var affiliation = paper.affiliation;
 										var authors     = paper.authors;
 										var url         = getArxivUrl(paper.id);
-										sidebarContent += eval('`' + filterResultsRes + '`');
-									})
+										sidebarContent += eval('`' + templates[1] + '`');
+									});
 									sidebar.setContent(sidebarContent);
 									sidebar.show();
+
+									$('.filterresult').click(function(e){
+										console.log(e);
+									})
 								}, function(reason){
 									console.log("Filter Results Template load faield:", reason);
 								});

@@ -188,3 +188,5 @@ oct 1 2017
 * bug where popup shows up beneath the custom controls is because Leaflet.Control.Custom inserts itself as a sibling of the leaflet-map-pane instead of underneath it, so z-index has no effect. I think I in the initialization step just move the div into where I need it to be and then z-indexing should work.
 	* https://stackoverflow.com/questions/34270421/z-index-not-working-as-intended
 	* workaround for now is the autoPanPaddingTopLeft option. Makes sure a popup will never open under my filter controls. The map can still be dragged so the popup is beneath however.
+* Use bootstrap collapse to do the summary loading stuff:
+	* https://getbootstrap.com/docs/4.0/components/collapse/

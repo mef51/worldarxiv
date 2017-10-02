@@ -106,10 +106,15 @@ a:hover {
 
 #nummatch {
 	font-weight: bold;
+	background-color: #E7DDE8;
 }
 
 #filter {
 	min-width: 90px;
+}
+
+#delete{
+
 }
 
 .popuptitle {
@@ -134,9 +139,28 @@ a:hover {
 	animation: 0.3s fade infinite alternate;
 }
 
+.filtertitle {
+	margin-top: 10px;
+	margin-bottom: -20px;
+	font-weight: bold;
+	font-size: 1.2em;
+}
+
+.filterresult:hover{
+	background-color: #EEE;
+	cursor: pointer;
+}
+
 .arxivlink {
 	font-weight: bold;
 	font-size: 1.2em;
+}
+
+.arxivlinksmall {
+	font-weight: bold;
+	font-size: 1.1em;
+	margin-bottom: -20px;
+	color: #666;
 }
 
 #sidebar > h1 {
