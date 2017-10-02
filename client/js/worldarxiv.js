@@ -1,6 +1,7 @@
 (function() {
 	var datadir = 'data';
 	var datafile = getDate() + '.json';
+	var currentPopup = null; // so we can close it whenever we want
 
 	// load data then display the page
 	request(datadir + '/' + datafile).then(function(response){
@@ -9,7 +10,7 @@
 		initializeFilters();
 		initializeMap(papers);
 	}, function(reason){
-		console.log(reason);
+		console.log("Data load failed:", reason);
 		initializeMap({});
 	});
 
@@ -23,9 +24,13 @@
 			position: 'left',
 			closeButton: true
 		});
+		worldarxiv.sidebar = sidebar;
 		worldmap.addControl(sidebar);
 		worldmap.on('click', function () {
 			sidebar.hide();
+		});
+		worldmap.on('popupopen', function(popupEvent){
+			currentPopup = popupEvent.popup;
 		});
 
 		request('../title.html').then(function(titleRes){
@@ -36,8 +41,7 @@
 				content : eval('`' + titleRes + '`'),
 			}).addTo(worldmap);
 		}, function(reason){
-			console.log("Title Template load failed:");
-			console.log(reason);
+			console.log("Title Template load failed:", reason);
 		});
 
 		// plot the unresolved papers in a square like pattern in the middle of the atlantic ocean
@@ -75,6 +79,7 @@
 			request('../popup.html').then(function(popupRes){
 				var popupTemplate = eval('`' + popupRes + '`');
 				marker.bindPopup(popupTemplate, {
+					autoPanPaddingTopLeft: [175,130],
 					maxWidth: 500
 				});
 
@@ -91,18 +96,15 @@
 							var sidebarTemplate = eval('`' + sidebarRes + '`');
 							sidebar.setContent(sidebarTemplate);
 						}, function(arxivReason){
-							console.log("arXiv API GET failed:");
-							console.log(reason);
+							console.log("arXiv API GET failed:", reason);
 						});
 					}, function(reason){
-						console.log("Sidebar Template load failed:");
-						console.log(reason);
+						console.log("Sidebar Template load failed:", reason);
 					});
 					sidebar.show();
 				});
 			}, function(reason){
-				console.log("Popup Template load failed:");
-				console.log(reason);
+				console.log("Popup Template load failed:", reason);
 			});
 		});
 		createFilterInterface(worldmap);
@@ -141,8 +143,7 @@
 			}).addTo(map);
 			applyFilters(map);
 		}, function(reason){
-				console.log("Filter Form Template load failed:");
-				console.log(reason);
+				console.log("Filter Form Template load failed:", reason);
 		});
 	}
 
@@ -184,9 +185,25 @@
 							e.preventDefault();
 							var source = e.target.id;
 							if(source == 'nummatch'){
-								matchingPapers.forEach(function(paper){
-									console.log(paper.title);
-								})
+								// close any open popups
+								map.closePopup(currentPopup);
+
+								var sidebar = worldarxiv.sidebar;
+								sidebar.setContent('');
+								request('../filterresults.html').then(function(filterResultsRes){
+									var sidebarContent = '';
+									matchingPapers.forEach(function(paper){
+										var title       = clean(paper.title);
+										var affiliation = paper.affiliation;
+										var authors     = paper.authors;
+										var url         = getArxivUrl(paper.id);
+										sidebarContent += eval('`' + filterResultsRes + '`');
+									})
+									sidebar.setContent(sidebarContent);
+									sidebar.show();
+								}, function(reason){
+									console.log("Filter Results Template load faield:", reason);
+								});
 							} else if(source == 'filter'){
 								// console.log('filter');
 							} else if(source == 'delete'){
@@ -212,8 +229,7 @@
 				}).addTo(map);
 			});
 		}, function(reason){
-			console.log("Filter Template load failed:");
-			console.log(reason);
+			console.log("Filter Template load failed:", reason);
 		});
 	}
 
