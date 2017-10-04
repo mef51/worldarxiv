@@ -147,7 +147,7 @@ a:hover {
 }
 
 .filterresult:hover{
-	background-color: #EEE;
+	background-color: rgba(0,0,0,0.025);
 	cursor: pointer;
 }
 

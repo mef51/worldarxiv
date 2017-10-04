@@ -17,7 +17,8 @@
 	function initializeMap(papers){
 		var worldmap = L.map('worldmap', {zoomControl: false}).setView([30, 10], 3);
 		L.tileLayer('http://{s}.tile.osm.org/{z}/{x}/{y}.png', {
-			attribution: '&copy; <a href="http://osm.org/copyright">OpenStreetMap</a>'
+			attribution: '&copy; <a href="http://osm.org/copyright">OpenStreetMap</a>',
+			minZoom: 3
 		}).addTo(worldmap);
 
 		var sidebar = L.control.sidebar('sidebar', {
@@ -62,8 +63,12 @@
 			if(typeof(paper.coords) != 'string'){
 				lat = paper.coords.lat;
 				lng = paper.coords.lng;
-				if(pinnedLocations.indexOf([lat,lng].toString()) > -1){
+
+				// if this position has already been marked, shift the longitude slightly
+				var failsafe = 0; // i don't know what toString does to some floats
+				while(pinnedLocations.indexOf([lat,lng].toString()) > -1 && failsafe < 100){
 					lng += 0.2;
+					failsafe++;
 				}
 				pinnedLocations.push([lat,lng].toString());
 			} else {
@@ -90,9 +95,7 @@
 					sidebar.setContent('');
 					request('../sidebar.html').then(function(sidebarRes){
 						request(getArxivAPIUrl(paper.id)).then(function(arxivRes){
-							var parser = new DOMParser();
-							var arxivDoc = parser.parseFromString(arxivRes, "text/xml");
-							var summary = arxivDoc.getElementsByTagName('summary')[0].innerHTML;
+							var abstract = parseArxivAbstract(arxivRes);
 							var sidebarTemplate = eval('`' + sidebarRes + '`');
 							sidebar.setContent(sidebarTemplate);
 						}, function(arxivReason){
@@ -199,14 +202,36 @@
 										var affiliation = paper.affiliation;
 										var authors     = paper.authors;
 										var url         = getArxivUrl(paper.id);
+										var abstract    = ''; // this is where you put a loading icon
 										sidebarContent += eval('`' + templates[1] + '`');
 									});
 									sidebar.setContent(sidebarContent);
 									sidebar.show();
 
-									$('.filterresult').click(function(e){
-										console.log(e);
-									})
+									$('.filterresult').click(function(e) {
+										var i = $('.filterresult').index(this);
+										var paper = matchingPapers[i];
+										map.flyTo(paper.coords, 7, {duration: 2});
+
+										if (!$('.abstract').eq(i).is(':visible')){
+											if(!paper.abstract){
+												request(getArxivAPIUrl(paper.id)).then(function(arxivRes){
+													var abstract = parseArxivAbstract(arxivRes);
+													paper.abstract = abstract; // cache the result
+													$('.abstract').slideUp(400);
+													$('.abstract').eq(i).html(abstract).slideDown(400);
+												}, function(arxivReason){
+													console.log("arXiv API GET failed:", reason);
+												});
+											} else {
+												$('.abstract').slideUp(400);
+												$('.abstract').eq(i).html(paper.abstract).slideDown(400);
+											}
+										} else {
+											$('.abstract').slideUp(400);
+										}
+									});
+
 								}, function(reason){
 									console.log("Filter Results Template load faield:", reason);
 								});
@@ -321,6 +346,13 @@
 			string = string.replace(fix, fixes[fix]);
 		}
 		return string
+	}
+
+	function parseArxivAbstract(arxivRes){
+		var parser = new DOMParser();
+		var arxivDoc = parser.parseFromString(arxivRes, "text/xml");
+		var summary = arxivDoc.getElementsByTagName('summary')[0].innerHTML;
+		return summary;
 	}
 
 	function getArxivUrl(id){

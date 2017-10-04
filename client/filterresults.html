@@ -1,13 +1,14 @@
 <p class='filtertitle'>${matches} result${matches == 1 ? '' : 's'} for filter '${filter}':</p>
 <hr />
 <!--: pre results -->
+<p class='arxivlinksmall'>
+	arXiv:<a href='${url}' target=0>${paper.id}</a> &gt
+	<a href='${getArxivPDF(paper.id)}' target=0>pdf</a>
+</p>
 <div class="filterresult">
-	<p class='arxivlinksmall'>
-		arXiv:<a href='${url}' target=0>${paper.id}</a> &gt
-		<a href='${getArxivPDF(paper.id)}' target=0>pdf</a>
-	</p>
 	<h1 class="popuptitle">${clean(paper.title)}</h1>
 	<p class='authors'>${authors.join(', ')}</p>
 	<p class='affiliation'>${affiliation}</p>
+	<p class='abstract' style='display: none;'>${abstract}</p>
 	<hr />
 </div>

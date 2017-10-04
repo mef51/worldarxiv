@@ -190,3 +190,7 @@ oct 1 2017
 	* workaround for now is the autoPanPaddingTopLeft option. Makes sure a popup will never open under my filter controls. The map can still be dragged so the popup is beneath however.
 * Use bootstrap collapse to do the summary loading stuff:
 	* https://getbootstrap.com/docs/4.0/components/collapse/
+
+============
+oct 3 2017
+* now that i keep track of the current popup I can probably implement the "my mouse isnt on this popup close it" feature by attaching a mousemove handler on worldmap and checking that it's not above the popup. I can then close the popup whenever I want
