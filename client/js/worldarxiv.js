@@ -3,6 +3,15 @@
 	var datafile = getDate() + '.json';
 	var currentPopup = null; // so we can close it whenever we want
 
+	var katexoptions = {
+		delimiters: [
+			{left: "$", right: "$", display: false},
+			{left: "$$", right: "$$", display: true},
+			{left: "\\[", right: "\\]", display: true},
+			{left: "\\(", right: "\\)", display: false}
+		]
+	};
+
 	// load data then display the page
 	request(datadir + '/' + datafile).then(function(response){
 		var papers = JSON.parse(response);
@@ -90,6 +99,7 @@
 
 				marker.on('mouseover', function(e) {
 					this.openPopup();
+					renderMathInElement(document.body, katexoptions);
 				});
 				marker.on('click', function(e) {
 					sidebar.setContent('');
@@ -98,6 +108,7 @@
 							var abstract = parseArxivAbstract(arxivRes);
 							var sidebarTemplate = eval('`' + sidebarRes + '`');
 							sidebar.setContent(sidebarTemplate);
+							renderMathInElement(document.body, katexoptions);
 						}, function(arxivReason){
 							console.log("arXiv API GET failed:", reason);
 						});
@@ -207,6 +218,7 @@
 									});
 									sidebar.setContent(sidebarContent);
 									sidebar.show();
+									renderMathInElement(document.body, katexoptions);
 
 									$('.filterresult').click(function(e) {
 										var i = $('.filterresult').index(this);
@@ -220,12 +232,14 @@
 													paper.abstract = abstract; // cache the result
 													$('.abstract').slideUp(400);
 													$('.abstract').eq(i).html(abstract).slideDown(400);
+													renderMathInElement(document.body, katexoptions);
 												}, function(arxivReason){
 													console.log("arXiv API GET failed:", reason);
 												});
 											} else {
 												$('.abstract').slideUp(400);
 												$('.abstract').eq(i).html(paper.abstract).slideDown(400);
+												renderMathInElement(document.body, katexoptions);
 											}
 										} else {
 											$('.abstract').slideUp(400);
