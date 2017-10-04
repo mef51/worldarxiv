@@ -213,7 +213,7 @@
 										var affiliation = paper.affiliation;
 										var authors     = paper.authors;
 										var url         = getArxivUrl(paper.id);
-										var abstract    = ''; // this is where you put a loading icon
+										var abstract    = '';
 										sidebarContent += eval('`' + templates[1] + '`');
 									});
 									sidebar.setContent(sidebarContent);
@@ -221,28 +221,37 @@
 									renderMathInElement(document.body, katexoptions);
 
 									$('.filterresult').click(function(e) {
+										// fly to marker and load that result's abstract into the sidebar
 										var i = $('.filterresult').index(this);
 										var paper = matchingPapers[i];
+										var duration = 400; // ms
 										map.flyTo(paper.coords, 7, {duration: 2});
 
 										if (!$('.abstract').eq(i).is(':visible')){
-											if(!paper.abstract){
+											if(paper.abstract){
+												$('.abstract').slideUp(duration);
+												$('.abstract').eq(i).html(paper.abstract).slideDown(duration);
+												renderMathInElement(document.body, katexoptions);
+											} else {
+												// load the abstract
+												var loadIcon = `
+													<i style="width:100%;" class="fa fa-cog fa-spin fa-lg fa-fw"></i>`;
+												$('.abstract').slideUp(duration);
+												$('.abstract').eq(i).html(loadIcon).slideDown('fast');
+
 												request(getArxivAPIUrl(paper.id)).then(function(arxivRes){
 													var abstract = parseArxivAbstract(arxivRes);
 													paper.abstract = abstract; // cache the result
-													$('.abstract').slideUp(400);
-													$('.abstract').eq(i).html(abstract).slideDown(400);
-													renderMathInElement(document.body, katexoptions);
+													$('.abstract').eq(i).fadeOut('fast', function(){
+														$('.abstract').eq(i).html(abstract).slideDown(duration);
+														renderMathInElement(document.body, katexoptions);
+													});
 												}, function(arxivReason){
 													console.log("arXiv API GET failed:", reason);
 												});
-											} else {
-												$('.abstract').slideUp(400);
-												$('.abstract').eq(i).html(paper.abstract).slideDown(400);
-												renderMathInElement(document.body, katexoptions);
 											}
 										} else {
-											$('.abstract').slideUp(400);
+											$('.abstract').slideUp(duration);
 										}
 									});
 
