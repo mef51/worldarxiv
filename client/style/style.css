@@ -182,3 +182,12 @@ a:hover {
 #sidebar > .summary {
 	font-size: 1.1em;
 }
+
+.underline {
+	text-decoration: underline;
+	text-decoration-style: dotted;
+}
+
+.datecntrl {
+	cursor: pointer;
+}

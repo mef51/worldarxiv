@@ -1,6 +1,7 @@
 (function() {
 	var datadir = 'data';
-	var datafile = getDate() + '.json';
+	var currentDate = getDate();
+	var datafile = currentDate + '.json';
 	var currentPopup = null; // so we can close it whenever we want
 
 	var katexoptions = {
@@ -12,47 +13,72 @@
 		]
 	};
 
+	setData(datafile);
+
 	// load data then display the page
-	request(datadir + '/' + datafile).then(function(response){
-		var papers = JSON.parse(response);
-		worldarxiv.papers = papers;
-		initializeFilters();
-		initializeMap(papers);
-	}, function(reason){
-		console.log("Data load failed:", reason);
-		initializeMap({});
-	});
+	function setData(datafile){
+		request(datadir + '/' + datafile).then(function(response){
+			var papers = JSON.parse(response);
+			worldarxiv.papers = papers;
+			initializeFilters();
+			initializeMap(papers);
+		}, function(reason){
+			console.log("Data load failed:", reason);
+			initializeMap({});
+		});
+	}
 
 	function initializeMap(papers){
-		var worldmap = L.map('worldmap', {zoomControl: false}).setView([30, 10], 3);
-		L.tileLayer('http://{s}.tile.osm.org/{z}/{x}/{y}.png', {
-			attribution: '&copy; <a href="http://osm.org/copyright">OpenStreetMap</a>',
-			minZoom: 3
-		}).addTo(worldmap);
-
-		var sidebar = L.control.sidebar('sidebar', {
-			position: 'left',
-			closeButton: true
-		});
-		worldarxiv.sidebar = sidebar;
-		worldmap.addControl(sidebar);
-		worldmap.on('click', function () {
-			sidebar.hide();
-		});
-		worldmap.on('popupopen', function(popupEvent){
-			currentPopup = popupEvent.popup;
-		});
-
-		request('../title.html').then(function(titleRes){
-			var list = 'astro-ph';
-			var date = prettyDate();
-			L.control.custom({
-				position: 'topleft',
-				content : eval('`' + titleRes + '`'),
+		var worldmap = null;
+		if(!worldarxiv.worldmap){
+			worldmap = L.map('worldmap', {zoomControl: false}).setView([30, 10], 3);
+			L.tileLayer('http://{s}.tile.osm.org/{z}/{x}/{y}.png', {
+				attribution: '&copy; <a href="http://osm.org/copyright">OpenStreetMap</a>',
+				minZoom: 3
 			}).addTo(worldmap);
-		}, function(reason){
-			console.log("Title Template load failed:", reason);
-		});
+			worldarxiv.worldmap = worldmap;
+
+			// setup layer group
+			worldmap.markers = L.layerGroup().addTo(worldmap);
+
+			var sidebar = L.control.sidebar('sidebar', {
+				position: 'left',
+				closeButton: true
+			});
+			worldarxiv.sidebar = sidebar;
+			worldmap.addControl(sidebar);
+			worldmap.on('click', function () {
+				sidebar.hide();
+			});
+			worldmap.on('popupopen', function(popupEvent){
+				currentPopup = popupEvent.popup;
+			});
+
+			// load title
+			request('../title.html').then(function(titleRes){
+				var list = 'astro-ph';
+				var date = prettyDate();
+				L.control.custom({
+					position: 'topleft',
+					content : eval('`' + titleRes + '`'),
+				}).addTo(worldmap);
+
+				$('.datecntrl').click(function(e){
+					if(e.target.id == 'dateprev'){
+						setData('20171004.json');
+					} else if (e.target.id == 'datenext'){
+						setData('20171004.json');
+					}
+				});
+			}, function(reason){
+				console.log("Title Template load failed:", reason);
+			});
+		} else {
+			worldmap = worldarxiv.worldmap;
+			worldmap.markers.clearLayers();
+			currentPopup = null
+		}
+
 
 		// plot the unresolved papers in a square like pattern in the middle of the atlantic ocean
 		var unresolvedCount = 0;
@@ -88,7 +114,8 @@
 				unresolvedCount++;
 			}
 
-			var marker = L.marker([lat, lng]).addTo(worldmap);
+			var marker = L.marker([lat, lng]);//.addTo(worldmap);
+			worldmap.markers.addLayer(marker);
 			paper.marker = marker;
 			request('../popup.html').then(function(popupRes){
 				var popupTemplate = eval('`' + popupRes + '`');
@@ -134,31 +161,34 @@
 	}
 
 	function createFilterInterface(map){
-		request('../filterform.html').then(function(filterRes){
-			L.control.custom({
-				position: 'topleft',
-				content : eval('`' + filterRes + '`'),
-				style   : {},
-				events: {
-					submit: function(e){
-						e.preventDefault();
-						var input = document.getElementById('newfilter');
-						var newFilter = input.value;
-						input.value = '';
+		var form = document.getElementsByClassName('filter-form')[0];
 
-						// save the filter
-						worldarxiv.filters['keywords'].push(newFilter);
-						localStorage.setItem('filters', JSON.stringify(worldarxiv.filters));
+		if(!form){
+			request('../filterform.html').then(function(filterRes){
+				L.control.custom({
+					position: 'topleft',
+					content : eval('`' + filterRes + '`'),
+					events: {
+						submit: function(e){
+							e.preventDefault();
+							var input = document.getElementById('newfilter');
+							var newFilter = input.value;
+							input.value = '';
 
-						// add the filter to the page and mark papers that match
-						applyFilters(map);
+							// save the filter
+							worldarxiv.filters['keywords'].push(newFilter);
+							localStorage.setItem('filters', JSON.stringify(worldarxiv.filters));
+
+							// add the filter to the page and mark papers that match
+							applyFilters(map);
+						}
 					}
-				}
-			}).addTo(map);
-			applyFilters(map);
-		}, function(reason){
-				console.log("Filter Form Template load failed:", reason);
-		});
+				}).addTo(map);
+			}, function(reason){
+					console.log("Filter Form Template load failed:", reason);
+			});
+		}
+		applyFilters(map);
 	}
 
 	/**

@@ -194,3 +194,8 @@ oct 1 2017
 ============
 oct 3 2017
 * now that i keep track of the current popup I can probably implement the "my mouse isnt on this popup close it" feature by attaching a mousemove handler on worldmap and checking that it's not above the popup. I can then close the popup whenever I want
+
+============
+Oct 9 2017
+* arxiv scheduling: https://arxiv.org/help/submit#availability
+	* arxiv local time is EDT https://arxiv.org/localtime
