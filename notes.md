@@ -89,9 +89,9 @@ may 8 2017:
 		* astro: ~50-100 new papers a day
 		* physics: ~100 new papers/day
 		* math: ~200 papers/day
-		* cs: ~150/day
+		* cs: ~200/day
 		* cond-mat: ~150/day
-		* worst case: 600/day
+		* worst case: 750/day
 
 ======
 may 10 2017:
@@ -199,3 +199,16 @@ oct 3 2017
 Oct 9 2017
 * arxiv scheduling: https://arxiv.org/help/submit#availability
 	* arxiv local time is EDT https://arxiv.org/localtime
+* minimum lists I want to support for launch:
+	* astro-ph: done
+	* physics: not bad, in the interface support the sub lists. This shouldn't require a different data download, just filtering
+	* cond-mat: not bad
+	* math: I don't trust the affiliations, find a Math database instead of using ADS
+	* cs: same, find a CS database instead of using ADS
+* A note on affiliations:
+	* A paper's marker is placed on the world at the location that corresponds to the institution the first author is affiliated with. Affiliations are found as best as possible based on what data is available. We first look for affiliation info directly from arXiv. If none is found, the site looks up the author's papers on databases like Harvard ADS and looks for associated affiliation information. If no affiliation is found for the first author on a paper, then the site attempts to find an affiliation for the second author, then third author, and so on. This strategy leads to several data problems:
+		* Authors who have recently changed institutions and who's new papers are not on such databases yet could lead the site to display the author's old institutions.
+		* Authors can be confused with authors of the same last name, leading to an entirely incorrect affiliation. This is especially an issue when no first name is provided or the author's name is common.
+	We can add more databases and create more complicated data checks when collecting papers but the real solution to these data problems lies with you, the author. When submitting a paper to the arXiv including the affiliation of at least the first author will ensure the marker is placed at the correct location. Another way to identify yourself (especially if you have a common name) is to register for a unique ORCiD and associating it with your arXiv account. This will enable arXiv and every third-party app built off of arXiv's data like this one to present firm connections between an author and their affiliation. If this is an interesting problem to you you can read more here: https://arxiv.org/help/author_identifiers
+* arxiv employee on orcids:
+	* https://groups.google.com/forum/#!topic/arxiv-api/gBYwlPERvq0

@@ -3,6 +3,7 @@
 	var currentDate = getDate();
 	var datafile = currentDate + '.json';
 	var currentPopup = null; // so we can close it whenever we want
+	var list = 'astro-ph';
 
 	var katexoptions = {
 		delimiters: [
@@ -17,7 +18,7 @@
 
 	// load data then display the page
 	function setData(datafile){
-		request(datadir + '/' + datafile).then(function(response){
+		request(datadir + '/' + list + '/' + datafile).then(function(response){
 			var papers = JSON.parse(response);
 			worldarxiv.papers = papers;
 			initializeFilters();
@@ -56,7 +57,6 @@
 
 			// load title
 			request('../title.html').then(function(titleRes){
-				var list = 'astro-ph';
 				var date = prettyDate();
 				L.control.custom({
 					position: 'topleft',

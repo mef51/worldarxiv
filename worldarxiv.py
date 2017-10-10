@@ -17,26 +17,27 @@ options = ["new", "current"] # 'current' needs more work
 archives = ["astro-ph", # getting author affiliations only works for astro-ph
 	"cond-mat",
 	"cs",
-	"gr-qc",
-	"hep-ex",
-	"hep-lat",
-	"hep-ph",
-	"hep-th",
+	# "gr-qc",
+	# "hep-ex",
+	# "hep-lat",
+	# "hep-ph",
+	# "hep-th",
 	"math",
-	"math-ph",
-	"nlin",
-	"nucl-ex",
-	"nucl-th",
+	# "math-ph",
+	# "nlin",
+	# "nucl-ex",
+	# "nucl-th",
 	"physics",
-	"q-bio",
-	"q-fin",
-	"quant-ph",
-	"stat"]
+	# "q-bio",
+	# "q-fin",
+	# "quant-ph",
+	# "stat"
+	]
 
 AFFNOTFOUND    = 'Affiliation Not Found.'
 COORDSNOTFOUND = 'Coordinates Not Found.'
 
-def scrapeArxivData(archive='astro-ph', option='new', limit=200):
+def scrapeArxivData(archive='astro-ph', option='new', limit=500):
 	"""
 	Scrape arxiv.
 
@@ -208,14 +209,17 @@ def getADSQueriesLeft():
 	return q.response.get_ratelimits()['remaining']
 
 if __name__ == "__main__":
-	print("Getting and saving data to", time.strftime('%Y%m%d') + '.json')
-	papers = scrapeArxivData()
-	papers = resolvePapers(papers)
+	archives = ['astro-ph', 'cond-mat', 'physics', 'cs', 'math']
 
-	# save today's data
-	datadir = os.path.join('client', 'data')
-	if not os.path.exists(datadir):
-		os.mkdir(datadir)
-	datafile = open(os.path.join(datadir, time.strftime('%Y%m%d') + '.json'), 'w')
-	json.dump(papers, datafile)
-	datafile.close()
+	for archive in archives:
+		datadir = os.path.join('client', 'data', archive)
+		print('{}: Getting and saving data to'.format(archive), datadir +'/'+ time.strftime('%Y%m%d') + '.json')
+		papers = scrapeArxivData(archive=archive)
+		papers = resolvePapers(papers)
+
+		# save today's data
+		if not os.path.exists(datadir):
+			os.mkdir(datadir)
+		datafile = open(os.path.join(datadir, time.strftime('%Y%m%d') + '.json'), 'w')
+		json.dump(papers, datafile)
+		datafile.close()
