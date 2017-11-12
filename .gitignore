@@ -2,3 +2,7 @@
 client/data/
 __pycache__
 bower_components/
+bin/
+include/
+lib/
+pip*.json
