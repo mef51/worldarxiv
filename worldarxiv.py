@@ -163,7 +163,14 @@ def getMapCoords(affiliation):
 
 	pieces = affiliation.split(', ')
 	for i, _ in enumerate(pieces):
-		coords = gmaps.geocode(', '.join(pieces[i:]))
+		try:
+			coords = gmaps.geocode(', '.join(pieces[i:]))
+		except googlemaps.exceptions.HTTPError as e:
+			coords = []
+			print(e)
+			print("Bad Request with:", ', '.join(pieces[i:]))
+
+
 		if len(coords) is not 0:
 			coords = coords[0]['geometry']['location']
 			return coords

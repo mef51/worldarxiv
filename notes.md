@@ -212,3 +212,10 @@ Oct 9 2017
 	We can add more databases and create more complicated data checks when collecting papers but the real solution to these data problems lies with you, the author. When submitting a paper to the arXiv including the affiliation of at least the first author will ensure the marker is placed at the correct location. Another way to identify yourself (especially if you have a common name) is to register for a unique ORCiD and associating it with your arXiv account. This will enable arXiv and every third-party app built off of arXiv's data like this one to present firm connections between an author and their affiliation. If this is an interesting problem to you you can read more here: https://arxiv.org/help/author_identifiers
 * arxiv employee on orcids:
 	* https://groups.google.com/forum/#!topic/arxiv-api/gBYwlPERvq0
+
+============
+Oct 17 2017
+* GW170817 is flooding arXiv with papers today, and it's making it clear that filtering on abstract content is useful since not every GW170817 paper has GW170817 in their title but they all have it in their abstract at least.
+	* scraping the abstract before loading the page means I don't hit arxiv with as many requests
+	* One option is to scrape it form the new page the way I already scrape the title and authors. Just need to make sure I handle the case where there is mathjax spans
+	* the other option is to hit the arxiv api with the full list of arxiv ids. It's a big request but it's just one request.
