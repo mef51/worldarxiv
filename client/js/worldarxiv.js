@@ -1,6 +1,6 @@
 (function() {
 	var datadir = 'data';
-	var currentDate = getDate();
+	var currentDate = getAnnouncementDate();
 	var datafile = currentDate + '.json';
 	var currentPopup = null; // so we can close it whenever we want
 	var list = 'astro-ph';
@@ -355,7 +355,10 @@
 		return {filter: filter, matches: count, papers: papers};
 	}
 
-	function getDate(){
+	/**
+	* Gets the date of the last announcement
+	*/
+	function getAnnouncementDate(){
 		var d = new Date();
 		var year  = d.getFullYear() + '';
 		var month = (d.getMonth() + 1) + ''; // getMonth() returns 0 - 11
