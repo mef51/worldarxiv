@@ -4,6 +4,7 @@
 	var datafile = currentDate + '.json';
 	var currentPopup = null; // so we can close it whenever we want
 	var list = 'astro-ph';
+	var dayshift = 0;
 
 	var katexoptions = {
 		delimiters: [
@@ -24,8 +25,10 @@
 			initializeFilters();
 			initializeMap(papers);
 		}, function(reason){
-			console.log("Data load failed:", reason);
-			initializeMap({});
+			dayshift -= 1;
+			datafile = getAnnouncementDate(dayshift) + '.json';
+			console.log("Data load failed; moving back a day to", datafile);
+			setData(datafile);
 		});
 	}
 
@@ -57,7 +60,7 @@
 
 			// load title
 			request('../title.html').then(function(titleRes){
-				var date = prettyDate();
+				var date = prettyDate(dayshift);
 				L.control.custom({
 					position: 'topleft',
 					content : eval('`' + titleRes + '`'),
@@ -358,8 +361,11 @@
 	/**
 	* Gets the date of the last announcement
 	*/
-	function getAnnouncementDate(){
+	function getAnnouncementDate(dayshift){
 		var d = new Date();
+		if(dayshift)
+			d.setDate(d.getDate() + dayshift);
+
 		var year  = d.getFullYear() + '';
 		var month = (d.getMonth() + 1) + ''; // getMonth() returns 0 - 11
 		var day   = d.getDate() + '';
@@ -371,8 +377,11 @@
 		return year + month + day;
 	}
 
-	function prettyDate(){
+	function prettyDate(dayshift){
 		var d = new Date();
+		if(dayshift)
+			d.setDate(d.getDate() + dayshift);
+
 		// set the date to the nearest friday if it's the weekend
 		if(d.getDay() == 0){ // sunday
 			d.setDate(d.getDate() - 2);
