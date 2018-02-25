@@ -3,6 +3,7 @@
 	var currentDate = getAnnouncementDate();
 	var datafile = currentDate + '.json';
 	var currentPopup = null; // so we can close it whenever we want
+	var popuptimers = []; // so we can keep it open whenever we want
 	var list = 'astro-ph';
 	var dayshift = 0;
 
@@ -56,6 +57,33 @@
 			});
 			worldmap.on('popupopen', function(popupEvent){
 				currentPopup = popupEvent.popup;
+				for(popuptimer of popuptimers){
+					window.clearTimeout(popuptimer);
+				}
+			});
+			worldmap.on('mousemove', function(moveEvent){
+				var elements = moveEvent.originalEvent.path;
+				var mouseOnPopup = false; // is the mouse on the popup or not?
+				for(var e of elements){
+					if(e.classList && e.classList.length != 0){
+						for(var domclass of e.classList){
+							if(domclass.indexOf('popup') > -1 || domclass.indexOf('marker') > -1){
+								mouseOnPopup = true;
+							}
+						}
+					}
+				}
+				// if the mouse moves fast enough then multiple timeouts get scheduled
+				// so we have to keep a list of timers so that we can cancel all of them
+				if(!mouseOnPopup && currentPopup && currentPopup.isOpen()){
+					popuptimers.push(setTimeout(function(){
+						worldmap.closePopup(currentPopup);
+					}, 200));
+				} else if(mouseOnPopup){
+					for(popuptimer of popuptimers){
+						window.clearTimeout(popuptimer);
+					}
+				}
 			});
 
 			// load title
@@ -68,9 +96,9 @@
 
 				$('.datecntrl').click(function(e){
 					if(e.target.id == 'dateprev'){
-						setData('20171004.json');
+						// setData('20171004.json');
 					} else if (e.target.id == 'datenext'){
-						setData('20171004.json');
+						// setData('20171004.json');
 					}
 				});
 			}, function(reason){
