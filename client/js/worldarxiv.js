@@ -26,11 +26,15 @@
 			initializeFilters();
 			initializeMap(papers);
 		}, function(reason){
-			dayshift -= 1;
-			datafile = getAnnouncementDate(dayshift) + '.json';
 			console.log("Data load failed; moving back a day to", datafile);
-			setData(datafile);
+			changeDay(-1);
 		});
+	}
+
+	function changeDay(days){
+		dayshift += days;
+		datafile = getAnnouncementDate(dayshift) + '.json';
+		setData(datafile);
 	}
 
 	function initializeMap(papers){
@@ -85,31 +89,33 @@
 					}
 				}
 			});
-
-			// load title
-			request('../title.html').then(function(titleRes){
-				var date = prettyDate(dayshift);
-				L.control.custom({
-					position: 'topleft',
-					content : eval('`' + titleRes + '`'),
-				}).addTo(worldmap);
-
-				$('.datecntrl').click(function(e){
-					if(e.target.id == 'dateprev'){
-						// setData('20171004.json');
-					} else if (e.target.id == 'datenext'){
-						// setData('20171004.json');
-					}
-				});
-			}, function(reason){
-				console.log("Title Template load failed:", reason);
-			});
 		} else {
 			worldmap = worldarxiv.worldmap;
 			worldmap.markers.clearLayers();
 			currentPopup = null
 		}
 
+		// load title
+		request('../title.html').then(function(titleRes){
+			var date = prettyDate(dayshift);
+			$('#titleContainer').remove();
+			L.control.custom({
+				id: 'titleContainer',
+				position: 'topleft',
+				content : eval('`' + titleRes + '`'),
+			}).addTo(worldmap);
+			$('#titleContainer').insertBefore($('.leaflet-top.leaflet-left').children()[0]);
+
+			$('.datecntrl').click(function(e){
+				if(e.target.id == 'dateprev'){
+					changeDay(-1);
+				} else if (e.target.id == 'datenext'){
+					changeDay(1);
+				}
+			});
+		}, function(reason){
+			console.log("Title Template load failed:", reason);
+		});
 
 		// plot the unresolved papers in a square like pattern in the middle of the atlantic ocean
 		var unresolvedCount = 0;
