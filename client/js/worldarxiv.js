@@ -5,7 +5,8 @@
 	var currentPopup = null; // so we can close it whenever we want
 	var popuptimers = []; // so we can keep it open whenever we want
 	var list = 'astro-ph';
-	var dayshift = 0;
+	var day = 0;
+	var maxDays = 7;
 
 	var katexoptions = {
 		delimiters: [
@@ -16,25 +17,54 @@
 		]
 	};
 
-	setData(datafile);
+	loadData(datafile); // load several day's data and display today's asap
 
-	// load data then display the page
-	function setData(datafile){
-		request(datadir + '/' + list + '/' + datafile).then(function(response){
-			var papers = JSON.parse(response);
-			worldarxiv.papers = papers;
-			initializeFilters();
-			initializeMap(papers);
-		}, function(reason){
-			console.log("Data load failed; moving back a day to", datafile);
-			changeDay(-1);
-		});
+	// scheme:
+	// data = [{'file': '2012.json', 'papers': papers}];
+
+	// pre load the last `maxDays` days of data
+	function loadData(datafile){
+		worldarxiv.data = {}
+		var dayshift = 0;
+
+		function requestFile(i, datafile){
+			request(datadir + '/' + list + '/' + datafile).then(function(response){
+				var papers = JSON.parse(response);
+				worldarxiv.data[i] = {'file': datafile, 'papers': papers};
+				if(i == 0)
+					setDay(0); // display today's data asap
+
+				dayshift--;
+
+				if(i+1 < maxDays){
+					requestFile(i+1, getAnnouncementDate(dayshift) + '.json');
+				}
+			}, function(reason){
+				dayshift--;
+				requestFile(i, getAnnouncementDate(dayshift) + '.json');
+			});
+		}
+
+		requestFile(0, datafile);
 	}
 
-	function changeDay(days){
-		dayshift += days;
-		datafile = getAnnouncementDate(dayshift) + '.json';
-		setData(datafile);
+	/**
+	* Set the day's data to be displayed.
+	* day = 0 is today, 1 is the day before, etc.
+	*/
+	function setDay(day){
+		var papers = worldarxiv.data[day]['papers'];
+		initializeFilters();
+		initializeMap(papers);
+	}
+
+	function changeDay(dayshift){
+		if(day+dayshift >= 0 && day+dayshift < maxDays) {
+			day += dayshift;
+		} else {
+			// disable the corresponding date arrow
+		}
+		setDay(day);
 	}
 
 	function initializeMap(papers){
@@ -97,7 +127,7 @@
 
 		// load title
 		request('../title.html').then(function(titleRes){
-			var date = prettyDate(dayshift);
+			var date = prettyDate(day);
 			$('#titleContainer').remove();
 			L.control.custom({
 				id: 'titleContainer',
@@ -108,9 +138,9 @@
 
 			$('.datecntrl').click(function(e){
 				if(e.target.id == 'dateprev'){
-					changeDay(-1);
-				} else if (e.target.id == 'datenext'){
 					changeDay(1);
+				} else if (e.target.id == 'datenext'){
+					changeDay(-1);
 				}
 			});
 		}, function(reason){
@@ -362,7 +392,7 @@
 	function testFilter(filter, remove=false){
 		var count = 0;
 		var papers = [];
-		worldarxiv.papers.forEach(function(paper){
+		worldarxiv.data[day]['papers'].forEach(function(paper){
 			var title         = clean(paper.title);
 			var affiliation   = paper.affiliation;
 			var authors       = paper.authors;
@@ -395,10 +425,10 @@
 	/**
 	* Gets the date of the last announcement
 	*/
-	function getAnnouncementDate(dayshift){
+	function getAnnouncementDate(day){
 		var d = new Date();
-		if(dayshift)
-			d.setDate(d.getDate() + dayshift);
+		if(day)
+			d.setDate(d.getDate() + day);
 
 		var year  = d.getFullYear() + '';
 		var month = (d.getMonth() + 1) + ''; // getMonth() returns 0 - 11
@@ -411,17 +441,10 @@
 		return year + month + day;
 	}
 
-	function prettyDate(dayshift){
-		var d = new Date();
-		if(dayshift)
-			d.setDate(d.getDate() + dayshift);
+	function prettyDate(day){
+		var dstr = worldarxiv.data[day]['file'];
+		var d = new Date(dstr.slice(0,4), dstr.slice(4,6)-1, dstr.slice(6,8));
 
-		// set the date to the nearest friday if it's the weekend
-		if(d.getDay() == 0){ // sunday
-			d.setDate(d.getDate() - 2);
-		} else if (d.getDay() == 6){ // saturday
-			d.setDate(d.getDate() - 1);
-		}
 		var months = ['January','February','March','April','May','June','July',
 			'August','September','October','November','December'];
 		var days = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday'];

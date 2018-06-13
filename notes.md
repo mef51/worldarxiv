@@ -219,3 +219,14 @@ Oct 17 2017
 	* scraping the abstract before loading the page means I don't hit arxiv with as many requests
 	* One option is to scrape it form the new page the way I already scrape the title and authors. Just need to make sure I handle the case where there is mathjax spans
 	* the other option is to hit the arxiv api with the full list of arxiv ids. It's a big request but it's just one request.
+
+============
+Mar 29 2018
+* I think for people working in and experienced in a field the author filter will be the most useful
+
+============
+June 13 2018
+* roadmap: date picker, list picker, robust filter language
+* some marker plugins:
+	* https://github.com/marslan390/BeautifyMarker
+	* https://github.com/naturalatlas/leaflet-transitionedicon
