@@ -5,6 +5,7 @@
 	var currentPopup = null; // so we can close it whenever we want
 	var popuptimers = []; // so we can keep it open whenever we want
 	var list = 'astro-ph';
+	var lists = ['astro-ph', 'cond-mat', 'cs', 'math', 'physics']
 	var day = 0;
 	var maxDays = 7;
 
@@ -31,8 +32,9 @@
 			request(datadir + '/' + list + '/' + datafile).then(function(response){
 				var papers = JSON.parse(response);
 				worldarxiv.data[i] = {'file': datafile, 'papers': papers};
-				if(i == 0)
+				if(i == 0){
 					setDay(0); // display today's data asap
+				}
 
 				dayshift--;
 
@@ -295,7 +297,7 @@
 						click: function(e){
 							e.preventDefault();
 							var source = e.target.id;
-							if(source == 'nummatch'){
+							if(source == 'nummatch' || source == 'filter'){
 								// close any open popups
 								map.closePopup(currentPopup);
 
@@ -399,7 +401,12 @@
 			var url           = getArxivUrl(paper.id);
 			var markerElement = paper.marker._icon;
 
-			var re = new RegExp(filter, 'gi');
+			var flag = 'gi'; // global, ignore case
+			if(numUpperCase(filter) > 1){
+				flag = 'g';
+			}
+
+			var re = new RegExp(filter, flag);
 			var matched = false;
 			var matchClass = 'blinking'; // the css class to add if a match is found
 			var fields = [title, authors.join(', '), affiliation];
@@ -468,6 +475,10 @@
 			string = string.replace(fix, fixes[fix]);
 		}
 		return string
+	}
+
+	function numUpperCase(s){
+		return s.length - s.replace(/[A-Z]/g, '').length
 	}
 
 	function parseArxivAbstract(arxivRes){

@@ -230,3 +230,16 @@ June 13 2018
 * some marker plugins:
 	* https://github.com/marslan390/BeautifyMarker
 	* https://github.com/naturalatlas/leaflet-transitionedicon
+
+============
+June 18 2018
+* filters language:
+	ALMA should just match on whole word ALMA (whole word)
+	star should match stars (sub word)
+	houde and Houde should match the same thing (case-insensitive)
+
+	proposed rule:
+	* if there is more than one capital letter, be case sensitive (this will usually imply whole word too, since ALMA won't match 'palma' in this case)
+	* if there is less than two capital letters, be case-insensitive.
+
+	Filters are case-insensitive, unless more than one capital letter is used (e.g. 'ALMA' won't catch 'palma' but 'star' will catch 'stars')

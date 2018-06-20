@@ -104,6 +104,16 @@ a:hover {
 	z-index: -10000;
 }
 
+.headbox {
+	position: fixed;
+	top: 0;
+	left: 0;
+	width: 100%;
+	height: 50px;
+	background: rgba(255,255,255,1.0);
+	z-index: -20000;
+}
+
 #nummatch {
 	font-weight: bold;
 	background-color: #E7DDE8;
@@ -111,6 +121,8 @@ a:hover {
 
 #filter {
 	min-width: 90px;
+	font-weight: bold;
+	color: #555;
 }
 
 #delete{
