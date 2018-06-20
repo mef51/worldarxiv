@@ -243,3 +243,8 @@ June 18 2018
 	* if there is less than two capital letters, be case-insensitive.
 
 	Filters are case-insensitive, unless more than one capital letter is used (e.g. 'ALMA' won't catch 'palma' but 'star' will catch 'stars')
+
+============
+June 20 2018
+* maybe filters should be list specific
+* use the hearthstone colors for common, rare, epic, legendary to color the number of matches

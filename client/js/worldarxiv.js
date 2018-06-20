@@ -4,7 +4,7 @@
 	var datafile = currentDate + '.json';
 	var currentPopup = null; // so we can close it whenever we want
 	var popuptimers = []; // so we can keep it open whenever we want
-	var list = 'astro-ph';
+	// var list = localStorage.getItem('list') || 'astro-ph';
 	var lists = ['astro-ph', 'cond-mat', 'cs', 'math', 'physics']
 	var day = 0;
 	var maxDays = 7;
@@ -17,7 +17,7 @@
 			{left: "\\(", right: "\\)", display: false}
 		]
 	};
-
+	worldarxiv.data = {}
 	loadData(datafile); // load several day's data and display today's asap
 
 	// scheme:
@@ -25,29 +25,35 @@
 
 	// pre load the last `maxDays` days of data
 	function loadData(datafile){
-		worldarxiv.data = {}
-		var dayshift = 0;
+		var currList = localStorage.getItem('list') || 'astro-ph';
+		for(l of lists){
+			worldarxiv.data[l] = {};
+		}
 
-		function requestFile(i, datafile){
+		function requestFile(i, dayshift, datafile, list, lazy=false){
 			request(datadir + '/' + list + '/' + datafile).then(function(response){
 				var papers = JSON.parse(response);
-				worldarxiv.data[i] = {'file': datafile, 'papers': papers};
-				if(i == 0){
+				worldarxiv.data[list][i] = {'file': datafile, 'papers': papers};
+				if(i == 0 && !lazy){
 					setDay(0); // display today's data asap
 				}
 
 				dayshift--;
 
 				if(i+1 < maxDays){
-					requestFile(i+1, getAnnouncementDate(dayshift) + '.json');
+					requestFile(i+1, dayshift, getAnnouncementDate(dayshift) + '.json', list, lazy);
 				}
 			}, function(reason){
 				dayshift--;
-				requestFile(i, getAnnouncementDate(dayshift) + '.json');
+				requestFile(i, dayshift, getAnnouncementDate(dayshift) + '.json', list, lazy);
 			});
 		}
 
-		requestFile(0, datafile);
+		requestFile(0, 0, datafile, currList, false);
+		var preloadLists = [].concat(lists.slice(0, lists.indexOf(currList)), lists.slice(lists.indexOf(currList)+1))
+		for(list of preloadLists){
+			requestFile(0, 0, datafile, list, true);
+		}
 	}
 
 	/**
@@ -55,8 +61,9 @@
 	* day = 0 is today, 1 is the day before, etc.
 	*/
 	function setDay(day){
-		var papers = worldarxiv.data[day]['papers'];
-		initializeFilters();
+		initializeInterface();
+
+		var papers = worldarxiv.data[worldarxiv.list][day]['papers'];
 		initializeMap(papers);
 	}
 
@@ -145,6 +152,15 @@
 					changeDay(-1);
 				}
 			});
+
+			$('.listselect').val(worldarxiv.list);
+			$('.listselect').change(function(e){
+				var newList = $('.listselect').val();
+				worldarxiv.list = newList;
+				localStorage.setItem('list', newList);
+				setDay(day);
+			});
+
 		}, function(reason){
 			console.log("Title Template load failed:", reason);
 		});
@@ -218,15 +234,20 @@
 			});
 		});
 		createFilterInterface(worldmap);
-		console.log(unresolvedCount + '', 'unresolved papers out of', papers.length + '')
+		console.log(worldarxiv.list+': ' +unresolvedCount + '', 'unresolved papers out of', papers.length + '')
 	}
 
-	function initializeFilters(){
+	function initializeInterface(){
 		if(!localStorage.getItem('filters')) {
 			var filters = {keywords: [], authors: [], affiliations: []};
 			localStorage.setItem('filters', JSON.stringify(filters));
 		}
+		if(!localStorage.getItem('list')){
+			localStorage.setItem('list', 'astro-ph');
+		}
+
 		worldarxiv.filters = JSON.parse(localStorage.getItem('filters'));
+		worldarxiv.list = localStorage.getItem('list');
 	}
 
 	function createFilterInterface(map){
@@ -394,7 +415,7 @@
 	function testFilter(filter, remove=false){
 		var count = 0;
 		var papers = [];
-		worldarxiv.data[day]['papers'].forEach(function(paper){
+		worldarxiv.data[worldarxiv.list][day]['papers'].forEach(function(paper){
 			var title         = clean(paper.title);
 			var affiliation   = paper.affiliation;
 			var authors       = paper.authors;
@@ -449,7 +470,7 @@
 	}
 
 	function prettyDate(day){
-		var dstr = worldarxiv.data[day]['file'];
+		var dstr = worldarxiv.data[worldarxiv.list][day]['file'];
 		var d = new Date(dstr.slice(0,4), dstr.slice(4,6)-1, dstr.slice(6,8));
 
 		var months = ['January','February','March','April','May','June','July',
