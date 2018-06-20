@@ -5,7 +5,7 @@
 	var currentPopup = null; // so we can close it whenever we want
 	var popuptimers = []; // so we can keep it open whenever we want
 	// var list = localStorage.getItem('list') || 'astro-ph';
-	var lists = ['astro-ph', 'cond-mat', 'cs', 'math', 'physics']
+	var lists = ['astro-ph', 'physics', 'math', 'cs', 'cond-mat']
 	var day = 0;
 	var maxDays = 7;
 
@@ -132,6 +132,7 @@
 			worldmap = worldarxiv.worldmap;
 			worldmap.markers.clearLayers();
 			currentPopup = null
+			worldarxiv.sidebar.hide();
 		}
 
 		// load title
@@ -173,6 +174,7 @@
 
 		var pinnedLocations = []; // temporarily track where markers are to overlaps
 		papers.forEach(function(paper){
+			var sidebar     = worldarxiv.sidebar;
 			var id          = paper.id;
 			var title       = clean(paper.title);
 			var affiliation = paper.affiliation;
@@ -234,12 +236,25 @@
 			});
 		});
 		createFilterInterface(worldmap);
-		console.log(worldarxiv.list+': ' +unresolvedCount + '', 'unresolved papers out of', papers.length + '')
+		console.log(worldarxiv.list+': '+unresolvedCount + '', 'unresolved papers out of', papers.length + '')
 	}
 
 	function initializeInterface(){
-		if(!localStorage.getItem('filters')) {
-			var filters = {keywords: [], authors: [], affiliations: []};
+		// check if the filters object is in storage.
+		// also check that its the right format (this provides a way to overwrite legacy formats)
+		if(!localStorage.getItem('filters') || !JSON.parse(localStorage.getItem('filters'))['astro-ph']) {
+			var filters = {};
+			for(list of lists){
+				filters[list] = {keywords: [], authors: [], affiliations: []}
+			}
+
+			// some default filters to populate the page on a user's first visit
+			filters['astro-ph']['keywords'] = ['star', 'Western Ontario', 'M. Chamma']
+			filters['physics']['keywords']  = ['quantum', 'MIT', 'Thorne']
+			filters['math']['keywords']     = ['group', 'Waterloo', 'Smith']
+			filters['cs']['keywords']       = ['distributed', 'MIT', 'Knuth']
+			filters['cond-mat']['keywords'] = ['quantum dot', 'Baltimore', 'Smith']
+
 			localStorage.setItem('filters', JSON.stringify(filters));
 		}
 		if(!localStorage.getItem('list')){
@@ -266,7 +281,7 @@
 							input.value = '';
 
 							// save the filter
-							worldarxiv.filters['keywords'].push(newFilter);
+							worldarxiv.filters[worldarxiv.list]['keywords'].push(newFilter);
 							localStorage.setItem('filters', JSON.stringify(worldarxiv.filters));
 
 							// add the filter to the page and mark papers that match
@@ -294,7 +309,7 @@
 		}
 
 		// todo: distinguish between different kinds of filters
-		var filters = worldarxiv.filters;
+		var filters = worldarxiv.filters[worldarxiv.list];
 		var filters = filters['keywords'].concat(filters['authors'], filters['affiliations']);
 		var filterResults = []; // list of {filter: 'blah', 'matches': 4, papers: []}
 
@@ -384,9 +399,9 @@
 								var filterTypes = ['keywords', 'authors', 'affiliations'];
 								testFilter(filter, true);
 								filterTypes.forEach(function(type){
-									var index = worldarxiv.filters[type].indexOf(filter);
+									var index = worldarxiv.filters[worldarxiv.list][type].indexOf(filter);
 									if(index > -1){
-										worldarxiv.filters[type].splice(index, 1);
+										worldarxiv.filters[worldarxiv.list][type].splice(index, 1);
 									}
 								});
 								localStorage.setItem('filters', JSON.stringify(worldarxiv.filters));
