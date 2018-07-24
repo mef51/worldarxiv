@@ -137,6 +137,12 @@ a:hover {
 	z-index: -20000;
 }
 
+.numpapers {
+	display: inline-block;
+	text-align: center;
+	width: 1.6em;
+}
+
 #nummatch {
 	font-weight: bold;
 	background-color: #E7DDE8;
