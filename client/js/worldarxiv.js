@@ -326,9 +326,11 @@
 				var filter = result.filter;
 				var matches = result.matches;
 				var matchingPapers = result.papers;
-				L.control.custom({
+				var matchstate = (matches > 0) ? '' : 'nomatch';
+				var filterbadge = L.control.custom({
 					position: 'topleft',
 					content : eval('`' + filterRes + '`'),
+					classes: 'filterbadge',
 					events: {
 						click: function(e){
 							e.preventDefault();
@@ -417,6 +419,13 @@
 					}
 				}).addTo(map);
 			});
+
+			// add filter to scrollable pane
+			if($('.filterpane').length == 0){
+				$('.filterbadge').eq(0).before('<div class="leaflet-control filterpane"></div>');
+			}
+			$('.filterpane').append($('.filterbadge'));
+
 		}, function(reason){
 			console.log("Filter Template load failed:", reason);
 		});
