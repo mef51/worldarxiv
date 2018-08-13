@@ -58,6 +58,13 @@ def scrapeArxivData(archive='astro-ph', option='new', limit=500):
 	entries = page.find_all('div', {'class': 'meta'})
 	ids = page.find_all('span', {'class': 'list-identifier'})
 
+	# get date information from the arxiv announcement to correctly name the file
+	dateline = page.find_all('div', {'class': 'list-dateline'})[0].text
+	date = dateline.split(', ')[-1].split(' ') # ['d', 'monthstring', 'yy']
+	months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec']
+
+	filedate = '20{:02d}{:02d}{:02d}'.format(int(date[2]), months.index(date[1])+1, int(date[0])) # for 'YYYYMMDD.json'
+
 	arxivids = []
 	titles = []
 	authorsbypaper = []
@@ -78,7 +85,7 @@ def scrapeArxivData(archive='astro-ph', option='new', limit=500):
 			'authors': [a.text for a in authors.findChildren()]
 		})
 
-	return papers[:limit]
+	return papers[:limit], filedate
 
 
 def queryArxiv(arxivId):
@@ -220,13 +227,16 @@ if __name__ == "__main__":
 
 	for archive in archives:
 		datadir = os.path.join('client', 'data', archive)
-		print('{}: Getting and saving data to'.format(archive), datadir +'/'+ time.strftime('%Y%m%d') + '.json')
-		papers = scrapeArxivData(archive=archive)
+		print('{}: Saving arxiv data...'.format(archive))
+		papers, filedate = scrapeArxivData(archive=archive)
+
+		filename = os.path.join(datadir, filedate + '.json')
+		print(filename)
 		papers = resolvePapers(papers)
 
 		# save today's data
 		if not os.path.exists(datadir):
 			os.mkdir(datadir)
-		datafile = open(os.path.join(datadir, time.strftime('%Y%m%d') + '.json'), 'w')
+		datafile = open(filename, 'w')
 		json.dump(papers, datafile)
 		datafile.close()
