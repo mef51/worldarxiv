@@ -141,8 +141,8 @@ def getAuthorAffiliation(arxivAuthor, maxtries=10):
 			break
 		except ads.exceptions.APIResponseError as e:
 			attempt = attempt + 1
-	if attempt >= maxtries:
-		raise Exception("ADS Failed", attempt, "times. Stopping.")
+			if attempt >= maxtries:
+				raise e
 
 	affiliation = AFFNOTFOUND
 	for result in results:
@@ -228,11 +228,37 @@ if __name__ == "__main__":
 	for archive in archives:
 		datadir = os.path.join('client', 'data', archive)
 		print('{}: Saving arxiv data...'.format(archive))
-		papers, filedate = scrapeArxivData(archive=archive)
 
-		filename = os.path.join(datadir, filedate + '.json')
+		# Scrape arXiv's announcement page and generate a filename.
+		# If `filename` already exists then arxiv hasn't updated yet.
+		# We know this because the filename generated here is based on the date on the arxiv page.
+		# arxiv says it updates at 20:00EDT, however it is frequently late by anywhere from 10-60 minutes.
+		# Wait five minutes and check the page for an update again, up to 21 times (100 minutes).
+		# Note that a cron task starts this script around 20:00EDT
+		waittime = 5*60 # seconds to wait between checks
+		checks, maxchecks = 0, 21
+		while checks < maxchecks:
+			papers, filedate = scrapeArxivData(archive=archive)
+			filename = os.path.join(datadir, filedate + '.json')
+			if os.path.exists(filename):
+				checks = checks+1
+				if checks >= maxchecks:
+					print("Still no update. Quitting.")
+					exit()
+				else:
+					print("arXiv doesn't seem to have updated... waiting 5 minutes")
+					time.sleep(waittime)
+					print("Checking for update...")
+			else:
+				break
+
 		print(filename)
-		papers = resolvePapers(papers)
+
+		try:
+			papers = resolvePapers(papers)
+		except ads.exceptions.APIResponseError as e:
+			print("ADS Failed", attempt, "times. Stopping", archive, "scrape.")
+			continue
 
 		# save today's data
 		if not os.path.exists(datadir):
