@@ -61,6 +61,7 @@ def scrapeArxivData(archive='astro-ph', option='new', limit=500):
 	# get date information from the arxiv announcement to correctly name the file
 	dateline = page.find_all('div', {'class': 'list-dateline'})[0].text
 	date = dateline.split(', ')[-1].split(' ') # ['d', 'monthstring', 'yy']
+	date.remove('') if '' in date else None # this handles arxiv's wierd behaviour of putting an extra space on single digit days
 	months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec']
 
 	filedate = '20{:02d}{:02d}{:02d}'.format(int(date[2]), months.index(date[1])+1, int(date[0])) # for 'YYYYMMDD.json'

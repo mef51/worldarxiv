@@ -248,3 +248,7 @@ June 18 2018
 June 20 2018
 * maybe filters should be list specific
 * use the hearthstone colors for common, rare, epic, legendary to color the number of matches
+
+============
+Sept 2 2018
+* I kinda want a way to save papers for later or reference
