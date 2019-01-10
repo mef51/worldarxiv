@@ -71,7 +71,7 @@ table {
 
 /**** Styling ****/
 
-a:hover {
+a, a:hover, a:active, a:visited, a:focus  {
 	text-decoration: none;
 }
 
@@ -107,6 +107,7 @@ a:hover {
 	margin-top: 15px;
 	margin-left: 5px;
 	padding-bottom: 0px;
+	display: inline-block;
 }
 
 .headsubtitle {
@@ -115,6 +116,20 @@ a:hover {
 	color: #444;
 	margin-top: 0px;
 	margin-left: 5px;
+}
+
+.menu {
+	font-weight: bold;
+	font-size: 1.3em;
+	/*float: right;*/
+}
+
+.menuitem {
+	display: inline;
+}
+
+.menulink {
+
 }
 
 .headvignette {
@@ -135,6 +150,15 @@ a:hover {
 	height: 50px;
 	background: rgba(255,255,255,1.0);
 	z-index: -20000;
+}
+
+.listselect {
+	background: white;
+	border-radius: 5px;
+}
+
+.listselect > option {
+	font-weight: bold;
 }
 
 .numpapers {
@@ -246,4 +270,23 @@ a:hover {
 
 .datecntrl {
 	cursor: pointer;
+}
+
+.modal-body {
+	font-size: 10pt;
+}
+
+
+.modal-list {
+	list-style-type: square;
+	padding: 1em 0 0 1em;
+}
+
+.sepicon {
+	font-size: 7px;
+	vertical-align: middle;
+}
+
+strong { /* why do i need this??? */
+	font-weight: 700;
 }

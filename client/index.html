@@ -55,6 +55,45 @@
 </head>
 <body>
 	<div id="sidebar"></div>
-	<div id="worldmap"></div>
+	<div id="worldmap">
+		<div class="modal fade aboutmodal" id="aboutmodal" tabindex="-1" role="dialog">
+			<div class="modal-dialog" role="document">
+				<div class="modal-content">
+					<div class="modal-header">
+						<button type="button" class="close" data-dismiss="modal" aria-label="Close">&times;</button>
+						<h3 class="modal-title"><b>About</b></h3>
+					</div>
+					<div class="modal-body">
+						<p id="aboutcontent">
+							<strong>worldarxiv.org</strong> scrapes the "new" page of the scientific pre-print archive arXiv.org every day and places a pin at the originating institution of each paper. For example, for arXiv's astro-ph list, the papers that <strong>worldarxiv.org</strong> will display will always come from <a href="https://arxiv.org/list/astro-ph/new" target=0>arxiv.org/list/astro-ph/new</a>
+							<h3>How is the originating location of a paper decided?</h3>
+							A paper's marker is placed on the world at the location that corresponds to the institution the first author is affiliated with. If no affiliation data is available for the first author, the second author is used, and so on.
+							<br>
+							Affiliations are found as best as possible based on what data is available. We first look for affiliation info directly from arXiv. If none is found, the site looks up the author's papers on databases like Harvard ADS and looks for associated affiliation information. If no affiliation is found for the first author on a paper, then the site attempts to find an affiliation for the second author, then third author, and so on. This strategy leads to several data problems:
+							<br>
+							<ul class='modal-list'>
+								<li>
+									Authors who have recently changed institutions and who's new papers are not on such databases yet could lead the site to display the author's old institutions.
+								</li>
+								<li>
+									Authors can be confused with authors of the same last name, leading to an entirely incorrect affiliation. This is especially an issue when no first name is provided or the author's name is common.
+								</li>
+
+							</ul>
+							<br>
+							We can add more databases and create more complicated data checks when collecting papers but the real solution to these data problems lies with you, the author. When submitting a paper to the arXiv including the affiliation of at least the first author will ensure the marker is placed at the correct location. Another way to identify yourself (especially if you have a common name) is to register for a unique ORCiD and associating it with your arXiv account. This will enable arXiv and every third-party app built off of arXiv's data like this one to present firm connections between an author and their affiliation. If this is an interesting problem to you you can read more <a href="https://arxiv.org/help/author_identifiers" target="0">here</a>.
+							<br>
+							<strong>All the affiliation info from worldarxiv.org is at best a reasonable guess and is not always correct. The "correct" affiliation is almost always in the PDF of the actual paper.</strong>
+							<h3>How far back is data available?</h3>
+							Seven days. Arbitrarily.
+							<h4><i class="fa fa-github" aria-hidden="true"></i> Can I help? Submit a bug report? Request a feature?</h4>
+							Yes! The code for this site is hosted at <a href="https://github.com/mef51/worldarxiv" target=0>github.com/mef51/worldarxiv</a>. Bugs and features can be requested on the <a href="https://github.com/mef51/worldarxiv/issues" target=0>issues page</a>.
+						</p>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+
 </body>
 </html>

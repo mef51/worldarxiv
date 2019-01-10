@@ -79,10 +79,14 @@
 	function initializeMap(papers){
 		var worldmap = null;
 		if(!worldarxiv.worldmap){
-			worldmap = L.map('worldmap', {zoomControl: false}).setView([30, 10], 3);
+			var bounds = new L.LatLngBounds(new L.LatLng(-90, -180), new L.LatLng(90, 180));
+			var startLoc = [30, -40]
+			worldmap = L.map('worldmap', {zoomControl: false, maxBounds: bounds, maxBoundsViscosity: 1.0})
+				.setView(startLoc, 3);
 			L.tileLayer('http://{s}.tile.osm.org/{z}/{x}/{y}.png', {
 				attribution: '&copy; <a href="http://osm.org/copyright">OpenStreetMap</a>',
-				minZoom: 3
+				minZoom: 3,
+				noWrap: true,
 			}).addTo(worldmap);
 			worldarxiv.worldmap = worldmap;
 
