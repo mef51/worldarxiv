@@ -251,4 +251,17 @@ June 20 2018
 
 ============
 Sept 2 2018
-* I kinda want a way to save papers for later or reference
+* I kinda want a way to save papers for later or reference. like in a sidebar that opens on the right
+
+============
+* late 2018/early 2019??
+date icons expand on hover
+non-default look for list picker
+about modal with:
+	* affiliation info
+	* github info
+	* data repo info
+	* lack-of-account info, localstorage only
+	* a video demo?
+http://getbootstrap.com/docs/3.3/javascript/#modals-examples
+https://stackoverflow.com/questions/22565247/bootstrap-modal-link
